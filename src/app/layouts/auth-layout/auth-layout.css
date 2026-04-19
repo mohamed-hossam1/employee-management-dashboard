@@ -1,0 +1,18 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.auth-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 1.5rem;
+  background: var(--surface);
+}
+
+.auth-layout__panel {
+  width: 100%;
+  max-width: 28rem;
+}
