@@ -341,4 +341,14 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 
+<!-- Phase 1 dev placeholder: demonstrates theme tokens (light/dark via .dark on <html>) -->
+<!-- Replaced by the authenticated layout shell in a later phase -->
+<div class="phase1-theme-demo" style="padding:1.5rem;background:var(--bg);color:var(--fg);min-height:100dvh">
+  <h1 style="color:var(--brand)">Employee Management Dashboard</h1>
+  <p style="color:var(--muted)">Foundation ready. Toggle the <code>dark</code> class on &lt;html&gt; to preview theming.</p>
+  <span style="display:inline-block;padding:0.25rem 0.75rem;border:1px solid var(--border);border-radius:2rem;background:var(--surface)">
+    theme token
+  </span>
+</div>
+
 <router-outlet />
