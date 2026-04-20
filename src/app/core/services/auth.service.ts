@@ -112,9 +112,7 @@ export class AuthService {
     }
 
     try {
-      const user = await firstValueFrom(this.api.get<User[]>(`api/users/${userId}`))
-        .then(() => this.fetchUserById(userId))
-        .catch(() => null);
+      const user = await this.fetchUserById(userId);
 
       if (!user) {
         this.clearSession();
