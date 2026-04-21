@@ -1,6 +1,5 @@
 :host {
   display: block;
-  min-height: 100dvh;
 }
 
 .auth-layout {
@@ -12,7 +11,42 @@
   background: var(--surface);
 }
 
-.auth-layout__panel {
+.auth-layout__card {
   width: 100%;
   max-width: 28rem;
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--bg);
+  box-shadow: var(--shadow-card);
+}
+
+.auth-layout__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1.75rem;
+}
+
+.auth-layout__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background: var(--color-brand);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+}
+
+.auth-layout__brand-name {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+:host:focus-within {
+  outline: none;
 }

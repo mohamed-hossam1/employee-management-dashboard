@@ -42,7 +42,7 @@ export class AuthService {
 
   async login(credentials: Credentials): Promise<AuthResult> {
     const matches = await firstValueFrom(
-      this.api.get<User[]>('api/users', { email: credentials.email })
+      this.api.get<User[]>('users', { email: credentials.email })
     );
     const user = matches[0];
 
@@ -60,7 +60,7 @@ export class AuthService {
 
   async register(payload: RegisterPayload): Promise<AuthResult> {
     const existing = await firstValueFrom(
-      this.api.get<User[]>('api/users', { email: payload.email })
+      this.api.get<User[]>('users', { email: payload.email })
     );
 
     if (existing.length > 0) {
@@ -69,7 +69,7 @@ export class AuthService {
 
     const now = new Date().toISOString();
     const created = await firstValueFrom(
-      this.api.post<User>('api/users', {
+      this.api.post<User>('users', {
         name: payload.name,
         email: payload.email,
         password: payload.password,
@@ -132,7 +132,7 @@ export class AuthService {
   }
 
   private async fetchUserById(id: string): Promise<User | null> {
-    const users = await firstValueFrom(this.api.get<User[]>('api/users', { id }));
+    const users = await firstValueFrom(this.api.get<User[]>('users', { id }));
     return users[0] ?? null;
   }
 
@@ -143,7 +143,7 @@ export class AuthService {
     }
     const updated: User = { ...user, lastLogin: new Date().toISOString() };
     try {
-      await firstValueFrom(this.api.put<User>(`api/users/${id}`, updated));
+      await firstValueFrom(this.api.put<User>(`users/${id}`, updated));
       this.state.setUser(updated);
     } catch {
       /* best-effort; ignore network failures for lastLogin */
