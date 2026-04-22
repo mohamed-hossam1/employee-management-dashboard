@@ -1,0 +1,35 @@
+<div class="shell" [class.shell--mobile]="isMobile()">
+  @if (drawerOpen()) {
+    <div
+      class="shell__backdrop"
+      (click)="closeDrawer()"
+      aria-hidden="true"
+    ></div>
+  }
+
+  <app-sidebar
+    class="shell__sidebar"
+    [sections]="sections"
+    [collapsed]="collapsed()"
+    [drawerOpen]="drawerOpen()"
+    [activeSectionId]="activeSectionId()"
+    [projectSlot]="projectSlot()"
+    (linkSelected)="closeDrawer()"
+    (toggleCollapsed)="onToggleCollapsed()"
+    (logout)="onLogout()"
+  />
+
+  <div class="shell__main">
+    <app-navbar
+      [title]="title()"
+      [subtitle]="subtitle()"
+      [user]="user()"
+      [isMobile]="isMobile()"
+      (menuToggle)="openDrawer()"
+      (logout)="onLogout()"
+    />
+    <main class="shell__content" role="main">
+      <router-outlet />
+    </main>
+  </div>
+</div>

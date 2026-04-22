@@ -1,0 +1,33 @@
+<header class="navbar">
+  <div class="navbar__leading">
+    @if (isMobile()) {
+      <button
+        type="button"
+        class="navbar__menu"
+        aria-label="Open navigation menu"
+        (click)="menuToggle.emit()"
+      >
+        <span aria-hidden="true">☰</span>
+      </button>
+    }
+    <div class="navbar__titles">
+      <h1 class="navbar__title">{{ title() }}</h1>
+      @if (subtitle()) {
+        <p class="navbar__subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+  </div>
+
+  <div class="navbar__trailing">
+    <div class="navbar__user">
+      @if (user().avatar) {
+        <img class="navbar__avatar" [src]="user().avatar!" [alt]="user().name" />
+      } @else {
+        <span class="navbar__avatar navbar__avatar--fallback" aria-hidden="true">
+          {{ user().name.charAt(0).toUpperCase() }}
+        </span>
+      }
+      <span class="navbar__user-name">{{ user().name }}</span>
+    </div>
+  </div>
+</header>

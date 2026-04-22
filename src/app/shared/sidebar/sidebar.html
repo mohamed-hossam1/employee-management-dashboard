@@ -1,0 +1,62 @@
+<nav
+  class="sidebar"
+  role="navigation"
+  aria-label="Primary"
+  [class.collapsed]="collapsed()"
+  [class.drawer-open]="drawerOpen()"
+>
+  <div class="sidebar__header">
+    <a class="sidebar__brand" routerLink="/projects" (click)="linkSelected.emit()">
+      <span class="sidebar__logo" aria-hidden="true">◆</span>
+      @if (!collapsed()) {
+        <span class="sidebar__brand-text">EMS</span>
+      }
+    </a>
+    <button
+      type="button"
+      class="sidebar__collapse"
+      [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      [attr.aria-expanded]="!collapsed()"
+      (click)="toggleCollapsed.emit()"
+    >
+      <span aria-hidden="true">{{ collapsed() ? '»' : '«' }}</span>
+    </button>
+  </div>
+
+  <div class="sidebar__project" [class.sidebar__project--empty]="!hasProject()">
+    @if (hasProject()) {
+      <span class="sidebar__project-name">{{ projectSlot()?.name }}</span>
+    } @else {
+      <span class="sidebar__project-empty">No project selected</span>
+    }
+  </div>
+
+  <ul class="sidebar__nav">
+    @for (section of sections(); track section.id) {
+      <li>
+        <a
+          class="sidebar__link"
+          [routerLink]="section.route"
+          routerLinkActive="sidebar__link--active"
+          [aria-current]="section.id === activeSectionId() ? 'page' : null"
+          [title]="collapsed() ? section.label : null"
+          (click)="linkSelected.emit()"
+        >
+          <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(section.icon) }}</span>
+          @if (!collapsed()) {
+            <span class="sidebar__label">{{ section.label }}</span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+
+  <div class="sidebar__footer">
+    <button type="button" class="sidebar__logout" (click)="logout.emit()">
+      <span class="sidebar__icon" aria-hidden="true">⏻</span>
+      @if (!collapsed()) {
+        <span class="sidebar__label">Log out</span>
+      }
+    </button>
+  </div>
+</nav>
