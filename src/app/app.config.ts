@@ -8,6 +8,7 @@ import { InMemoryDataService } from './core/data/in-memory-data.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { AuthService } from './core/services/auth.service';
+import { ThemeService } from './core/theme/theme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,6 +26,12 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (authService: AuthService) => () => authService.autoLogin(),
       deps: [AuthService],
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (themeService: ThemeService) => () => themeService.init(),
+      deps: [ThemeService],
       multi: true
     }
   ]
