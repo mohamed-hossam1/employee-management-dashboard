@@ -22,4 +22,8 @@ export class NavbarComponent {
   readonly logout = output<void>();
 
   readonly isDark = this.themeState.isDark;
+
+  protected toggleTheme(): void {
+    this.themeState.toggleTheme();
+  }
 }

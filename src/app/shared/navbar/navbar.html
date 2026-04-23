@@ -19,6 +19,15 @@
   </div>
 
   <div class="navbar__trailing">
+    <button
+      type="button"
+      class="navbar__theme"
+      [attr.aria-label]="isDark() ? 'Switch to light theme' : 'Switch to dark theme'"
+      [attr.aria-pressed]="isDark()"
+      (click)="toggleTheme()"
+    >
+      <span aria-hidden="true">{{ isDark() ? '☀' : '☾' }}</span>
+    </button>
     <div class="navbar__user">
       @if (user().avatar) {
         <img class="navbar__avatar" [src]="user().avatar!" [alt]="user().name" />
