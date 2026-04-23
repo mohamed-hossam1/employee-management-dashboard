@@ -1,11 +1,15 @@
-import { signal, computed, Injectable } from '@angular/core';
+import { signal, computed, Injectable, inject, NgZone, PLATFORM_ID, DestroyRef } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 export type ThemeValue = 'light' | 'dark';
 
-const DESKTOP_BREAKPOINT = 1024;
+const MOBILE_QUERY = '(max-width: 1023px)';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeState {
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly zone = inject(NgZone);
+
   private readonly themeSignal = signal<ThemeValue>('light');
   private readonly collapsedSignal = signal(false);
   private readonly drawerOpenSignal = signal(false);
@@ -42,5 +46,16 @@ export class ThemeState {
     if (!isMobile && this.drawerOpenSignal()) {
       this.drawerOpenSignal.set(false);
     }
+  }
+
+  listenForBreakpoint(destroyRef: DestroyRef): void {
+    if (!isPlatformBrowser(this.platformId) || typeof window === 'undefined' || !window.matchMedia) {
+      return;
+    }
+    const mql = window.matchMedia(MOBILE_QUERY);
+    this.setMobile(mql.matches);
+    const handler = (event: MediaQueryListEvent) => this.setMobile(event.matches);
+    mql.addEventListener('change', handler);
+    destroyRef.onDestroy(() => mql.removeEventListener('change', handler));
   }
 }

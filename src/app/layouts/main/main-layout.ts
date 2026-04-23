@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, DestroyRef } from '@angular/core';
 import { RouterOutlet, RouterLink, NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
@@ -22,6 +22,7 @@ export class MainLayout {
   private readonly themeState = inject(ThemeState);
   private readonly authState = inject(AuthState);
   private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly sections = NAVIGATION_SECTIONS;
 
@@ -53,6 +54,10 @@ export class MainLayout {
   readonly subtitle = computed(() => this.activeSection()?.label ?? '');
 
   readonly projectSlot = computed(() => ({ projectId: null, name: null }));
+
+  constructor() {
+    this.themeState.listenForBreakpoint(this.destroyRef);
+  }
 
   onToggleCollapsed(): void {
     this.themeState.toggleCollapsed();
