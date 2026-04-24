@@ -17,6 +17,7 @@ export class SidebarComponent {
   readonly sections = input.required<NavigationSection[]>();
   readonly collapsed = input(false);
   readonly drawerOpen = input(false);
+  readonly isMobile = input(false);
   readonly activeSectionId = input<string>('');
   readonly projectSlot = input<ActiveProjectSlot | null>(null);
 

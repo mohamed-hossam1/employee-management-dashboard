@@ -1,4 +1,8 @@
-<div class="shell" [class.shell--mobile]="isMobile()">
+<div
+  class="shell"
+  [class.shell--mobile]="isMobile()"
+  (keydown.escape)="drawerOpen() ? closeDrawer() : null"
+>
   @if (drawerOpen()) {
     <div
       class="shell__backdrop"
@@ -8,10 +12,13 @@
   }
 
   <app-sidebar
+    #sidebarEl
     class="shell__sidebar"
+    (keydown)="onDrawerKeydown($event)"
     [sections]="sections"
     [collapsed]="collapsed()"
     [drawerOpen]="drawerOpen()"
+    [isMobile]="isMobile()"
     [activeSectionId]="activeSectionId()"
     [projectSlot]="projectSlot()"
     (linkSelected)="closeDrawer()"

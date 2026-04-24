@@ -1,5 +1,5 @@
-import { Component, inject, computed, DestroyRef } from '@angular/core';
-import { RouterOutlet, RouterLink, NavigationEnd, Router } from '@angular/router';
+import { Component, inject, computed, DestroyRef, effect, viewChild, ElementRef } from '@angular/core';
+import { RouterOutlet, NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 
@@ -13,7 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, RouterLink, SidebarComponent, NavbarComponent],
+  imports: [RouterOutlet, SidebarComponent, NavbarComponent],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })
@@ -55,8 +55,57 @@ export class MainLayout {
 
   readonly projectSlot = computed(() => ({ projectId: null, name: null }));
 
+  private readonly sidebarRef = viewChild('sidebarEl', { read: ElementRef });
+  private lastFocused: HTMLElement | null = null;
+
   constructor() {
     this.themeState.listenForBreakpoint(this.destroyRef);
+
+    effect(() => {
+      const open = this.drawerOpen();
+      const host = this.sidebarRef()?.nativeElement as HTMLElement | undefined;
+      if (open && host) {
+        this.lastFocused = (document.activeElement as HTMLElement) ?? null;
+        const focusable = host.querySelector<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        focusable?.focus();
+      } else if (!open && this.lastFocused) {
+        this.lastFocused.focus();
+        this.lastFocused = null;
+      }
+    });
+  }
+
+  onDrawerKeydown(event: KeyboardEvent): void {
+    if (!this.drawerOpen()) {
+      return;
+    }
+    if (event.key !== 'Tab') {
+      return;
+    }
+    const host = this.sidebarRef()?.nativeElement as HTMLElement | undefined;
+    if (!host) {
+      return;
+    }
+    const focusable = Array.from(
+      host.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    );
+    if (focusable.length === 0) {
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement as HTMLElement;
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   onToggleCollapsed(): void {
