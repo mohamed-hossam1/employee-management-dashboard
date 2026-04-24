@@ -75,4 +75,16 @@ export class MainLayout {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }
+
+  onSearchFocus(): void {
+    /* presentational entry point; global search behavior lands in a later phase */
+  }
+
+  onOpenProfile(): void {
+    this.router.navigate(['/profile']);
+  }
+
+  onOpenSettings(): void {
+    this.router.navigate(['/settings']);
+  }
 }

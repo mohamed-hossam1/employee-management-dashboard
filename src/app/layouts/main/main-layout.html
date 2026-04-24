@@ -26,6 +26,9 @@
       [user]="user()"
       [isMobile]="isMobile()"
       (menuToggle)="openDrawer()"
+      (searchFocus)="onSearchFocus()"
+      (openProfile)="onOpenProfile()"
+      (openSettings)="onOpenSettings()"
       (logout)="onLogout()"
     />
     <main class="shell__content" role="main">
