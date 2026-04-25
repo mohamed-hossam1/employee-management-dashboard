@@ -9,6 +9,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/theme/theme.service';
+import { ProjectService } from './core/services/project.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,7 +20,8 @@ export const appConfig: ApplicationConfig = {
       HttpClientInMemoryWebApiModule.forRoot(InMemoryDataService, {
         dataEncapsulation: false,
         delay: 300,
-        passThruUnknownUrl: true
+        passThruUnknownUrl: true,
+        apiBase: 'api'
       })
     ),
     {
@@ -32,6 +34,20 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (themeService: ThemeService) => () => themeService.init(),
       deps: [ThemeService],
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (authService: AuthService, projectService: ProjectService) => async () => {
+        const authed = await authService.autoLogin();
+        if (authed) {
+          const user = authService.getCurrentUser();
+          if (user) {
+            await projectService.loadActiveProject(user.id);
+          }
+        }
+      },
+      deps: [AuthService, ProjectService],
       multi: true
     }
   ]
