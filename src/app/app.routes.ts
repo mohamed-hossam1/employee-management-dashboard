@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
+import { projectGuard } from './core/guards/project.guard';
 import { MainLayout } from './layouts/main/main-layout';
 
 export const routes: Routes = [
@@ -15,24 +16,28 @@ export const routes: Routes = [
     children: [
       {
         path: ':projectId/dashboard',
+        canActivate: [projectGuard],
         loadComponent: () =>
           import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
         data: { section: 'dashboard' }
       },
       {
         path: ':projectId/employees',
+        canActivate: [projectGuard],
         loadComponent: () =>
           import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
         data: { section: 'employees' }
       },
       {
         path: ':projectId/departments',
+        canActivate: [projectGuard],
         loadComponent: () =>
           import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
         data: { section: 'departments' }
       },
       {
         path: ':projectId/attendance',
+        canActivate: [projectGuard],
         loadComponent: () =>
           import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
         data: { section: 'attendance' }
@@ -72,8 +77,8 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () =>
-          import('./pages/projects.placeholder').then((m) => m.ProjectsPlaceholder)
+        loadChildren: () =>
+          import('./features/projects/projects.routes').then((m) => m.projectsRoutes)
       }
     ]
   },
