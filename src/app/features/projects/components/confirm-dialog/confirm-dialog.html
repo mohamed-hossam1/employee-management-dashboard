@@ -1,0 +1,28 @@
+<div class="confirm-backdrop" (click)="cancel.emit()">
+  <div
+    class="confirm"
+    role="alertdialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="'confirm-title'"
+    [attr.aria-describedby]="'confirm-message'"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 id="confirm-title" class="confirm__title">{{ title() }}</h2>
+    <p id="confirm-message" class="confirm__message">{{ message() }}</p>
+    <div class="confirm__footer">
+      <button type="button" class="btn btn--ghost" (click)="cancel.emit()" [disabled]="busy()">
+        {{ cancelLabel() }}
+      </button>
+      <button
+        type="button"
+        class="btn"
+        [class.btn--danger]="danger()"
+        [class.btn--primary]="!danger()"
+        (click)="confirm.emit()"
+        [disabled]="busy()"
+      >
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  </div>
+</div>

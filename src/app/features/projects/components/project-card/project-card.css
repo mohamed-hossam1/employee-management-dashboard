@@ -1,0 +1,74 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent, var(--color-brand));
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-card);
+}
+
+.card--active {
+  outline: 2px solid var(--accent, var(--color-brand));
+}
+
+.card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card__icon {
+  font-size: 1.5rem;
+}
+
+.card__badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent, var(--color-brand));
+  border: 1px solid var(--accent, var(--color-brand));
+  border-radius: 999px;
+  padding: 0.125rem 0.5rem;
+}
+
+.card__name {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.card__description {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.card__action {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.card__action--primary {
+  background: var(--accent, var(--color-brand));
+  color: #fff;
+  border-color: transparent;
+}
+
+.card__action--danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}

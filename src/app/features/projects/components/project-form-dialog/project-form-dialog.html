@@ -1,0 +1,92 @@
+<div class="dialog-backdrop" (click)="cancel.emit()">
+  <div
+    class="dialog"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="isEdit ? 'edit-project-title' : 'create-project-title'"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="dialog__header">
+      <h2 id="create-project-title" class="dialog__title">
+        @if (isEdit) { Edit project } @else { Create project }
+      </h2>
+      <button type="button" class="dialog__close" aria-label="Close dialog" (click)="cancel.emit()">×</button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="field">
+        <label class="field__label" for="project-name">Name</label>
+        <input
+          id="project-name"
+          type="text"
+          formControlName="name"
+          class="field__input"
+          [attr.aria-invalid]="nameError() ? 'true' : null"
+          [attr.aria-describedby]="nameError() ? 'project-name-error' : null"
+        />
+        @if (nameError()) {
+          <p id="project-name-error" class="field__error" role="alert">{{ nameError() }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="project-description">Description</label>
+        <textarea
+          id="project-description"
+          formControlName="description"
+          class="field__input field__input--textarea"
+          rows="3"
+          [attr.aria-invalid]="descriptionError() ? 'true' : null"
+          [attr.aria-describedby]="descriptionError() ? 'project-description-error' : null"
+        ></textarea>
+        @if (descriptionError()) {
+          <p id="project-description-error" class="field__error" role="alert">{{ descriptionError() }}</p>
+        }
+      </div>
+
+      <fieldset class="field">
+        <legend class="field__label">Color</legend>
+        <div class="swatches" role="radiogroup" aria-label="Project color">
+          @for (color of colors; track color) {
+            <button
+              type="button"
+              class="swatch"
+              [class.swatch--selected]="form.controls.color.value === color"
+              [style.background-color]="color"
+              [attr.aria-checked]="form.controls.color.value === color ? 'true' : 'false'"
+              role="radio"
+              [attr.aria-label]="color"
+              (click)="selectColor(color)"
+            ></button>
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend class="field__label">Icon</legend>
+        <div class="icons" role="radiogroup" aria-label="Project icon">
+          @for (icon of icons; track icon) {
+            <button
+              type="button"
+              class="icon-option"
+              [class.icon-option--selected]="form.controls.icon.value === icon"
+              [attr.aria-checked]="form.controls.icon.value === icon ? 'true' : 'false'"
+              role="radio"
+              [attr.aria-label]="icon"
+              (click)="selectIcon(icon)"
+            >
+              {{ icon }}
+            </button>
+          }
+        </div>
+      </fieldset>
+
+      <footer class="dialog__footer">
+        <button type="button" class="btn btn--ghost" (click)="cancel.emit()">Cancel</button>
+        <button type="submit" class="btn btn--primary" [disabled]="saving() || form.invalid">
+          {{ saving() ? (isEdit ? 'Saving…' : 'Creating…') : (isEdit ? 'Save' : 'Create') }}
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

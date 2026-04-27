@@ -1,0 +1,44 @@
+<article
+  class="card"
+  [class.card--active]="active()"
+  [style.--accent]="project().color"
+  aria-labelledby="project-{{ project().id }}-name"
+>
+  <div class="card__top">
+    <span class="card__icon" aria-hidden="true">{{ iconGlyph(project().icon) }}</span>
+    @if (active()) {
+      <span class="card__badge">Active</span>
+    }
+  </div>
+
+  <h3 id="project-{{ project().id }}-name" class="card__name">{{ project().name }}</h3>
+  @if (project().description) {
+    <p class="card__description">{{ project().description }}</p>
+  }
+
+  <div class="card__actions">
+    <button
+      type="button"
+      class="card__action card__action--primary"
+      (click)="activate.emit()"
+    >
+      {{ active() ? 'Open' : 'Switch to' }}
+    </button>
+    <button
+      type="button"
+      class="card__action"
+      aria-label="Edit {{ project().name }}"
+      (click)="edit.emit()"
+    >
+      Edit
+    </button>
+    <button
+      type="button"
+      class="card__action card__action--danger"
+      aria-label="Delete {{ project().name }}"
+      (click)="delete.emit()"
+    >
+      Delete
+    </button>
+  </div>
+</article>
