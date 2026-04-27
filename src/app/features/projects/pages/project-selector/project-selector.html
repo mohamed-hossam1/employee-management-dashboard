@@ -1,0 +1,55 @@
+<main role="main" class="selector" aria-labelledby="selector-heading">
+  <header class="selector__header">
+    <div>
+      <h1 id="selector-heading" class="selector__title">Projects</h1>
+      <p class="selector__subtitle">Manage your workspaces and switch between them.</p>
+    </div>
+    <button type="button" class="selector__create" (click)="openCreate()">
+      <span aria-hidden="true">＋</span> New project
+    </button>
+  </header>
+
+  @if (loading()) {
+    <div class="selector__loading" role="status" aria-live="polite">Loading projects…</div>
+  } @else if (isEmpty()) {
+    <section class="empty" aria-labelledby="empty-heading">
+      <h2 id="empty-heading" class="empty__title">No projects yet</h2>
+      <p class="empty__text">Create your first project to start organizing your data.</p>
+      <button type="button" class="selector__create" (click)="openCreate()">Create a project</button>
+    </section>
+  } @else {
+    <ul class="selector__grid">
+      @for (project of projects(); track project.id) {
+        <li>
+          <app-project-card
+            [project]="project"
+            [active]="activeProjectId() === project.id"
+            (activate)="onActivate(project)"
+            (edit)="openEdit(project)"
+            (delete)="openDelete(project)"
+          />
+        </li>
+      }
+    </ul>
+  }
+
+  @if (dialogOpen()) {
+    <app-project-form-dialog
+      [project]="editing()"
+      [saving]="saving()"
+      (cancel)="closeDialog()"
+      (save)="onSave($event)"
+    />
+  }
+
+  @if (deleting()) {
+    <app-confirm-dialog
+      title="Delete project"
+      [message]="'This will permanently delete \'' + deleting()!.name + '\' and all of its data.'"
+      confirmLabel="Delete"
+      [danger]="true"
+      (cancel)="closeDelete()"
+      (confirm)="onConfirmDelete()"
+    />
+  }
+</main>
