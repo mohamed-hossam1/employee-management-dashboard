@@ -14,12 +14,14 @@ export class ThemeState {
   private readonly collapsedSignal = signal(false);
   private readonly drawerOpenSignal = signal(false);
   private readonly isMobileSignal = signal(false);
+  private readonly projectSwitchOpenSignal = signal(false);
 
   readonly theme = this.themeSignal.asReadonly();
   readonly isDark = computed(() => this.themeSignal() === 'dark');
   readonly collapsed = this.collapsedSignal.asReadonly();
   readonly drawerOpen = this.drawerOpenSignal.asReadonly();
   readonly isMobile = this.isMobileSignal.asReadonly();
+  readonly projectSwitchOpen = this.projectSwitchOpenSignal.asReadonly();
 
   setTheme(value: ThemeValue): void {
     this.themeSignal.set(value);
@@ -39,6 +41,18 @@ export class ThemeState {
 
   closeDrawer(): void {
     this.drawerOpenSignal.set(false);
+  }
+
+  toggleProjectSwitch(): void {
+    this.projectSwitchOpenSignal.update((open) => !open);
+  }
+
+  openProjectSwitch(): void {
+    this.projectSwitchOpenSignal.set(true);
+  }
+
+  closeProjectSwitch(): void {
+    this.projectSwitchOpenSignal.set(false);
   }
 
   setMobile(isMobile: boolean): void {

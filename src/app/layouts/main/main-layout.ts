@@ -10,6 +10,9 @@ import { NavigationSection } from '../../core/navigation/navigation-section.mode
 import { ThemeState } from '../../core/theme/theme.state';
 import { AuthState } from '../../core/state/auth.state';
 import { AuthService } from '../../core/services/auth.service';
+import { ProjectState } from '../../core/state/project.state';
+import { ProjectService } from '../../core/services/project.service';
+import { ActiveProjectSlot } from '../../core/navigation/active-project-slot.model';
 
 @Component({
   selector: 'app-main-layout',
@@ -22,6 +25,8 @@ export class MainLayout {
   private readonly themeState = inject(ThemeState);
   private readonly authState = inject(AuthState);
   private readonly authService = inject(AuthService);
+  private readonly projectState = inject(ProjectState);
+  private readonly projectService = inject(ProjectService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly sections = NAVIGATION_SECTIONS;
@@ -53,7 +58,34 @@ export class MainLayout {
   readonly title = computed(() => this.activeSection()?.label ?? 'Dashboard');
   readonly subtitle = computed(() => this.activeSection()?.label ?? '');
 
-  readonly projectSlot = computed(() => ({ projectId: null, name: null }));
+  readonly projectSlot = computed<ActiveProjectSlot>(() => {
+    const active = this.projectState.activeProject();
+    return { projectId: active?.id ?? null, name: active?.name ?? null, color: active?.color ?? null };
+  });
+
+  readonly projectSwitchOpen = computed(() => this.themeState.projectSwitchOpen());
+
+  readonly projects = this.projectState.projects;
+  readonly activeProjectId = this.projectState.activeProjectId;
+
+  async onSelectProject(id: string): Promise<void> {
+    const user = this.authState.currentUser();
+    if (!user) {
+      return;
+    }
+    await this.projectService.setActiveProject(id, user.id);
+    this.themeState.closeProjectSwitch();
+    this.router.navigate(['/p', id, 'dashboard']);
+  }
+
+  onManageProjects(): void {
+    this.themeState.closeProjectSwitch();
+    this.router.navigate(['/projects']);
+  }
+
+  onToggleProjectSwitch(): void {
+    this.themeState.toggleProjectSwitch();
+  }
 
   private readonly sidebarRef = viewChild('sidebarEl', { read: ElementRef });
   private lastFocused: HTMLElement | null = null;

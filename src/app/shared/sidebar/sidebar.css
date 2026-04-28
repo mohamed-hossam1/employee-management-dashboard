@@ -69,6 +69,81 @@
   color: var(--muted);
 }
 
+.sidebar__project-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sidebar__project-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sidebar__project-name {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__project-caret {
+  color: var(--muted);
+}
+
+.sidebar__switch {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0.25rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.sidebar__switch-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar__switch-item:hover {
+  background: var(--surface);
+}
+
+.sidebar__switch-item--active {
+  background: var(--color-brand);
+  color: #fff;
+}
+
+.sidebar__switch-item--manage {
+  color: var(--muted);
+  font-style: italic;
+}
+
 .sidebar__nav {
   list-style: none;
   margin: 0;

@@ -21,9 +21,15 @@
     [isMobile]="isMobile()"
     [activeSectionId]="activeSectionId()"
     [projectSlot]="projectSlot()"
+    [projects]="projects()"
+    [activeProjectId]="activeProjectId()"
+    [projectSwitchOpen]="projectSwitchOpen()"
     (linkSelected)="closeDrawer()"
     (toggleCollapsed)="onToggleCollapsed()"
     (logout)="onLogout()"
+    (selectProject)="onSelectProject($event)"
+    (manageProjects)="onManageProjects()"
+    (toggleProjectSwitch)="onToggleProjectSwitch()"
   />
 
   <div class="shell__main">
