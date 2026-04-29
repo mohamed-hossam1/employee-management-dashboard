@@ -1,11 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export interface Toast {
   id: number;
   message: string;
   type: ToastType;
+  duration: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -15,25 +16,29 @@ export class NotificationService {
 
   readonly toasts = this.toastsSignal.asReadonly();
 
-  success(message: string): void {
-    this.push(message, 'success');
+  success(message: string, duration = 4000): void {
+    this.push(message, 'success', duration);
   }
 
-  error(message: string): void {
-    this.push(message, 'error');
+  error(message: string, duration = 5000): void {
+    this.push(message, 'error', duration);
   }
 
-  info(message: string): void {
-    this.push(message, 'info');
+  warning(message: string, duration = 4000): void {
+    this.push(message, 'warning', duration);
+  }
+
+  info(message: string, duration = 4000): void {
+    this.push(message, 'info', duration);
   }
 
   dismiss(id: number): void {
     this.toastsSignal.update((toasts) => toasts.filter((t) => t.id !== id));
   }
 
-  private push(message: string, type: ToastType): void {
+  private push(message: string, type: ToastType, duration: number): void {
     const id = this.nextId++;
-    this.toastsSignal.update((toasts) => [...toasts, { id, message, type }]);
-    setTimeout(() => this.dismiss(id), 5000);
+    this.toastsSignal.update((toasts) => [...toasts, { id, message, type, duration }]);
+    setTimeout(() => this.dismiss(id), duration);
   }
 }
