@@ -1,14 +1,16 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { NotificationService } from '../../../core/services/notification.service';
+import { slideIn } from '../../animations/shared.animations';
 
 @Component({
   selector: 'app-toast-host',
   imports: [],
+  animations: [slideIn],
   template: `
-    <div class="toast-host" role="region" aria-live="polite" aria-label="Notifications">
+    <div class="toast-host" role="status" aria-live="polite" aria-label="Notifications">
       @for (toast of toasts(); track toast.id) {
-        <div class="toast" [class]="'toast--' + toast.type">
+        <div class="toast" [@slideIn] [class]="'toast--' + toast.type">
           <span class="toast__message">{{ toast.message }}</span>
           <button
             type="button"
@@ -29,12 +31,12 @@ import { NotificationService } from '../../../core/services/notification.service
       }
       .toast-host {
         position: fixed;
-        bottom: 1rem;
+        top: 1rem;
         right: 1rem;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        z-index: 1000;
+        z-index: 1200;
         max-width: min(22rem, calc(100vw - 2rem));
       }
       .toast {
@@ -57,6 +59,10 @@ import { NotificationService } from '../../../core/services/notification.service
         border-color: var(--color-success);
         color: var(--color-success);
       }
+      .toast--warning {
+        border-color: var(--color-warning);
+        color: var(--color-warning);
+      }
       .toast__message {
         font-size: 0.875rem;
       }
@@ -76,7 +82,7 @@ import { NotificationService } from '../../../core/services/notification.service
   ]
 })
 export class ToastHost {
-  private readonly notifications: NotificationService = inject(NotificationService);
+  private readonly notifications = inject(NotificationService);
   protected readonly toasts = this.notifications.toasts;
   protected dismiss(id: number): void {
     this.notifications.dismiss(id);
