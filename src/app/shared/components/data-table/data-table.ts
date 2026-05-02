@@ -90,7 +90,7 @@ export interface SortChangeEvent {
                   <td>
                     @switch (col.render) {
                       @case ('badge') {
-                        <app-badge [text]="cellText(row, col.key)" [variant]="col.badgeVariant ?? 'info'" />
+                        <app-badge [text]="cellText(row, col.key)" [variant]="badgeVariant(col.badgeVariant)" />
                       }
                       @case ('avatar') {
                         <span class="data-table__avatar">
@@ -215,6 +215,10 @@ export class DataTableComponent {
   protected avatarSrc(row: Record<string, unknown>, key: string): string | null {
     const value = row[key];
     return typeof value === 'string' && value.length > 0 ? value : null;
+  }
+
+  protected badgeVariant(value: BadgeVariant | undefined): BadgeVariant {
+    return value ?? 'info';
   }
 
   protected cellText(row: Record<string, unknown>, key: string): string {

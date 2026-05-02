@@ -140,9 +140,10 @@ export class ConfirmDialogComponent {
   }
 
   private trapFocus(event: KeyboardEvent): void {
-    const focusable = this.host.nativeElement.querySelectorAll(
+    const dialog = this.host.nativeElement as HTMLElement;
+    const focusable = dialog.querySelectorAll<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    ) as NodeListOf<HTMLElement>;
+    );
     if (focusable.length === 0) {
       return;
     }
