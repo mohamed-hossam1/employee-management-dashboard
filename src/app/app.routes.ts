@@ -87,6 +87,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/unauthorized').then((m) => m.UnauthorizedPage)
   },
   {
+    path: 'components',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/components-gallery/components-gallery').then((m) => m.ComponentsGallery)
+  },
+  {
     path: '',
     redirectTo: 'projects',
     pathMatch: 'full'
