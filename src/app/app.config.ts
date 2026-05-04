@@ -1,10 +1,15 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, APP_INITIALIZER } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+  importProvidersFrom,
+  APP_INITIALIZER
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
 
 import { routes } from './app.routes';
 import { InMemoryDataService } from './core/data/in-memory-data.service';
-import { mockApiInterceptor } from './core/interceptors/mock-api.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { AuthService } from './core/services/auth.service';
@@ -15,8 +20,15 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    InMemoryDataService,
-    provideHttpClient(withInterceptors([mockApiInterceptor, authInterceptor, errorInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
+    importProvidersFrom(
+      HttpClientInMemoryWebApiModule.forRoot(InMemoryDataService, {
+        dataEncapsulation: false,
+        delay: 300,
+        passThruUnknownUrl: true,
+        apiBase: 'api'
+      })
+    ),
     {
       provide: APP_INITIALIZER,
       useFactory: (authService: AuthService) => () => authService.autoLogin(),
