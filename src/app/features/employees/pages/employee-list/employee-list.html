@@ -1,0 +1,72 @@
+<main class="employee-list" role="main" aria-labelledby="employee-list-heading">
+  <header class="employee-list__header">
+    <div>
+      <h1 id="employee-list-heading" class="employee-list__title">Employees</h1>
+      <p class="employee-list__subtitle">Browse, search, and manage people in this project.</p>
+    </div>
+    <div class="employee-list__header-actions">
+      <a class="employee-list__btn employee-list__btn--primary" [routerLink]="addEmployeeLink()">
+        Add employee
+      </a>
+    </div>
+  </header>
+
+  <section class="employee-list__toolbar" aria-label="Search and filters">
+    <div class="employee-list__search">
+      <app-search-bar
+        placeholder="Search by name, email, or position"
+        [debounceMs]="300"
+        variant="contextual"
+        (searchChange)="onSearch($event)"
+      />
+    </div>
+    <app-employee-filters
+      [filters]="currentFilters()"
+      [departments]="departments()"
+      (filterChange)="onFilterChange($event)"
+    />
+  </section>
+
+  @if (initialLoad()) {
+    <div class="employee-list__skeleton" role="status" aria-busy="true" aria-label="Loading employees">
+      @for (row of [1, 2, 3, 4, 5]; track row) {
+        <app-skeleton variant="text" width="100%" height="2.5rem" />
+      }
+    </div>
+  } @else if (showEmpty()) {
+    <app-empty-state
+      title="No employees found"
+      message="Try adjusting your search or filters, or add a new employee."
+      icon="👤"
+      actionText="Add employee"
+      (action)="onEmptyAction()"
+    />
+  } @else {
+    <app-employee-table
+      [employees]="pagedEmployees()"
+      [loading]="loading()"
+      [selectable]="false"
+      [showActions]="false"
+      [selectedIds]="selectedIds()"
+      [sortField]="currentSortField()"
+      [sortDir]="currentSortDir()"
+      [departmentNames]="departmentNames()"
+      (sortChange)="onSortChange($event)"
+      (selectionChange)="onSelectionChange($event)"
+      (rowClick)="onRowClick($event)"
+    />
+
+    <div class="employee-list__footer">
+      <p class="employee-list__count" aria-live="polite">
+        {{ total() }} employee{{ total() === 1 ? '' : 's' }}
+      </p>
+      <app-pagination
+        [total]="total()"
+        [page]="page()"
+        [pageSize]="pageSize()"
+        [pageSizes]="[10, 25, 50]"
+        (pageChange)="onPageChange($event)"
+      />
+    </div>
+  }
+</main>
