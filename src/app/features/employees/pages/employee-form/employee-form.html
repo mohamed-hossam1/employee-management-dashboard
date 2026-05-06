@@ -1,0 +1,176 @@
+<main class="employee-form" role="main" aria-labelledby="employee-form-heading">
+  <header class="employee-form__header">
+    <div>
+      <h1 id="employee-form-heading" class="employee-form__title">{{ pageTitle() }}</h1>
+      <p class="employee-form__subtitle">
+        {{ isEdit() ? 'Update employee details for this project.' : 'Add a new employee to the active project.' }}
+      </p>
+    </div>
+    <a class="employee-form__back" [routerLink]="listLink()">Back to list</a>
+  </header>
+
+  @if (loading()) {
+    <p class="employee-form__status" role="status">Loading form…</p>
+  } @else {
+    <form class="employee-form__card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      @if (formError()) {
+        <p class="employee-form__error" role="alert">{{ formError() }}</p>
+      }
+
+      <div class="employee-form__grid">
+        <app-form-field controlId="firstName" label="First name" [error]="fieldError('firstName')">
+          <input
+            id="firstName"
+            type="text"
+            formControlName="firstName"
+            class="employee-form__input"
+            autocomplete="given-name"
+            [attr.aria-invalid]="fieldError('firstName') ? 'true' : null"
+          />
+        </app-form-field>
+
+        <app-form-field controlId="lastName" label="Last name" [error]="fieldError('lastName')">
+          <input
+            id="lastName"
+            type="text"
+            formControlName="lastName"
+            class="employee-form__input"
+            autocomplete="family-name"
+            [attr.aria-invalid]="fieldError('lastName') ? 'true' : null"
+          />
+        </app-form-field>
+
+        <app-form-field controlId="email" label="Email" [error]="fieldError('email')">
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="employee-form__input"
+            autocomplete="email"
+            [attr.aria-invalid]="fieldError('email') ? 'true' : null"
+          />
+        </app-form-field>
+
+        <app-form-field
+          controlId="phone"
+          label="Phone"
+          hint="Optional"
+          [error]="fieldError('phone')"
+        >
+          <input
+            id="phone"
+            type="tel"
+            formControlName="phone"
+            class="employee-form__input"
+            autocomplete="tel"
+            [attr.aria-invalid]="fieldError('phone') ? 'true' : null"
+          />
+        </app-form-field>
+
+        <app-form-field controlId="departmentId" label="Department" [error]="fieldError('departmentId')">
+          <select
+            id="departmentId"
+            formControlName="departmentId"
+            class="employee-form__input"
+            [attr.aria-invalid]="fieldError('departmentId') ? 'true' : null"
+          >
+            <option value="" disabled>Select department</option>
+            @for (dept of departments(); track dept.id) {
+              <option [value]="dept.id">{{ dept.name }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field controlId="position" label="Position" [error]="fieldError('position')">
+          <input
+            id="position"
+            type="text"
+            formControlName="position"
+            class="employee-form__input"
+            [attr.aria-invalid]="fieldError('position') ? 'true' : null"
+          />
+        </app-form-field>
+
+        <app-form-field controlId="salary" label="Salary" [error]="fieldError('salary')">
+          <input
+            id="salary"
+            type="number"
+            formControlName="salary"
+            class="employee-form__input"
+            min="1"
+            step="100"
+            [attr.aria-invalid]="fieldError('salary') ? 'true' : null"
+          />
+        </app-form-field>
+
+        <app-form-field controlId="hireDate" label="Hire date" [error]="fieldError('hireDate')">
+          <input
+            id="hireDate"
+            type="date"
+            formControlName="hireDate"
+            class="employee-form__input"
+            [attr.aria-invalid]="fieldError('hireDate') ? 'true' : null"
+          />
+        </app-form-field>
+
+        <app-form-field controlId="status" label="Status" [error]="fieldError('status')">
+          <select
+            id="status"
+            formControlName="status"
+            class="employee-form__input"
+            [attr.aria-invalid]="fieldError('status') ? 'true' : null"
+          >
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ statusLabels[status] }}</option>
+            }
+          </select>
+        </app-form-field>
+      </div>
+
+      <fieldset class="employee-form__avatar">
+        <legend class="employee-form__legend">Avatar</legend>
+        <div class="employee-form__avatar-row">
+          <div class="employee-form__preview" aria-hidden="true">
+            @if (avatarPreview(); as src) {
+              <img [src]="src" alt="" class="employee-form__preview-img" />
+            } @else {
+              <span class="employee-form__preview-placeholder">No image</span>
+            }
+          </div>
+          <div class="employee-form__avatar-controls">
+            <label class="employee-form__file-label" for="avatar">
+              Upload image
+              <input
+                id="avatar"
+                type="file"
+                accept="image/*"
+                class="employee-form__file"
+                (change)="onAvatarSelected($event)"
+              />
+            </label>
+            @if (avatarPreview()) {
+              <button type="button" class="employee-form__link-btn" (click)="clearAvatar()">
+                Remove avatar
+              </button>
+            }
+            @if (avatarError()) {
+              <p class="employee-form__field-error" role="alert">{{ avatarError() }}</p>
+            }
+            <p class="employee-form__hint">PNG or JPG up to 500KB.</p>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="employee-form__actions">
+        <a class="employee-form__secondary" [routerLink]="listLink()">Cancel</a>
+        <button
+          type="submit"
+          class="employee-form__submit"
+          [disabled]="submitting() || form.invalid"
+        >
+          {{ submitting() ? 'Saving…' : isEdit() ? 'Save changes' : 'Create employee' }}
+        </button>
+      </div>
+    </form>
+  }
+</main>
