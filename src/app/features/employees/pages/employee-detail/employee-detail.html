@@ -1,0 +1,66 @@
+<main class="employee-detail" role="main" aria-labelledby="employee-detail-heading">
+  <header class="employee-detail__header">
+    <a class="employee-detail__back" [routerLink]="listLink()">← Back to employees</a>
+  </header>
+
+  @if (loading() && !employee()) {
+    <div class="employee-detail__loading" role="status" aria-busy="true" aria-label="Loading employee">
+      <app-loader variant="inline" />
+      <span>Loading profile…</span>
+    </div>
+  } @else if (notFound() || !employee()) {
+    <section class="employee-detail__empty" aria-labelledby="employee-detail-heading">
+      <h1 id="employee-detail-heading">Employee not found</h1>
+      <p>This employee may have been deleted or belongs to another project.</p>
+      <button type="button" class="employee-detail__btn" (click)="goBack()">Return to list</button>
+    </section>
+  } @else {
+    <article class="employee-detail__card" [attr.aria-labelledby]="'employee-detail-heading'">
+      <div class="employee-detail__identity">
+        <app-avatar [src]="employee()!.avatar" [name]="fullName()" size="lg" />
+        <div>
+          <h1 id="employee-detail-heading" class="employee-detail__title">{{ fullName() }}</h1>
+          <p class="employee-detail__position">{{ employee()!.position }}</p>
+          <app-badge [text]="statusLabel()" [variant]="statusVariant()" />
+        </div>
+      </div>
+
+      <dl class="employee-detail__grid">
+        <div>
+          <dt>Email</dt>
+          <dd>
+            <a [href]="'mailto:' + employee()!.email">{{ employee()!.email }}</a>
+          </dd>
+        </div>
+        <div>
+          <dt>Phone</dt>
+          <dd>{{ employee()!.phone || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Department</dt>
+          <dd>{{ departmentName() }}</dd>
+        </div>
+        <div>
+          <dt>Salary</dt>
+          <dd>{{ employee()!.salary | currency }}</dd>
+        </div>
+        <div>
+          <dt>Hire date</dt>
+          <dd>{{ employee()!.hireDate | date: 'mediumDate' }}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>
+            <app-badge [text]="statusLabel()" [variant]="statusVariant()" />
+          </dd>
+        </div>
+      </dl>
+
+      <div class="employee-detail__actions">
+        <a class="employee-detail__btn employee-detail__btn--primary" [routerLink]="editLink()">
+          Edit employee
+        </a>
+      </div>
+    </article>
+  }
+</main>

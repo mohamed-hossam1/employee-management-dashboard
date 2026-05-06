@@ -1,0 +1,138 @@
+:host {
+  display: block;
+}
+
+.employee-detail {
+  padding: 1.5rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.employee-detail__header {
+  margin-bottom: 1rem;
+}
+
+.employee-detail__back {
+  color: var(--color-brand);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.employee-detail__back:hover {
+  text-decoration: underline;
+}
+
+.employee-detail__loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+}
+
+.employee-detail__empty {
+  padding: 2rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+.employee-detail__empty h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.employee-detail__empty p {
+  margin: 0 0 1rem;
+  color: var(--muted);
+}
+
+.employee-detail__card {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.employee-detail__identity {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.employee-detail__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.employee-detail__position {
+  margin: 0.25rem 0 0.5rem;
+  color: var(--muted);
+}
+
+.employee-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 0;
+}
+
+.employee-detail__grid dt {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.employee-detail__grid dd {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.employee-detail__grid a {
+  color: var(--color-brand);
+  text-decoration: none;
+}
+
+.employee-detail__grid a:hover {
+  text-decoration: underline;
+}
+
+.employee-detail__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.employee-detail__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.employee-detail__btn--primary {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: #fff;
+}
+
+.employee-detail__btn:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
