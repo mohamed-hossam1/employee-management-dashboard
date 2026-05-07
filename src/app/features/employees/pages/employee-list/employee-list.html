@@ -27,6 +27,21 @@
     />
   </section>
 
+  @if (selectedCount() > 0) {
+    <div class="employee-list__bulk" role="region" aria-label="Bulk actions">
+      <p class="employee-list__bulk-text">
+        {{ selectedCount() }} selected
+      </p>
+      <button
+        type="button"
+        class="employee-list__btn employee-list__btn--danger"
+        (click)="openBulkDelete()"
+      >
+        Delete selected
+      </button>
+    </div>
+  }
+
   @if (initialLoad()) {
     <div class="employee-list__skeleton" role="status" aria-busy="true" aria-label="Loading employees">
       @for (row of [1, 2, 3, 4, 5]; track row) {
@@ -45,8 +60,8 @@
     <app-employee-table
       [employees]="pagedEmployees()"
       [loading]="loading()"
-      [selectable]="false"
-      [showActions]="false"
+      [selectable]="true"
+      [showActions]="true"
       [selectedIds]="selectedIds()"
       [sortField]="currentSortField()"
       [sortDir]="currentSortDir()"
@@ -54,6 +69,8 @@
       (sortChange)="onSortChange($event)"
       (selectionChange)="onSelectionChange($event)"
       (rowClick)="onRowClick($event)"
+      (edit)="onEdit($event)"
+      (delete)="onDeleteRequest($event)"
     />
 
     <div class="employee-list__footer">
@@ -69,4 +86,24 @@
       />
     </div>
   }
+
+  <app-confirm-dialog
+    [open]="!!deleteTarget()"
+    title="Delete employee"
+    [message]="deleteMessage()"
+    confirmText="Delete"
+    cancelText="Cancel"
+    (confirmed)="confirmDelete()"
+    (cancelled)="closeDelete()"
+  />
+
+  <app-confirm-dialog
+    [open]="bulkDeleteOpen()"
+    title="Delete selected employees"
+    [message]="bulkDeleteMessage()"
+    confirmText="Delete all"
+    cancelText="Cancel"
+    (confirmed)="confirmBulkDelete()"
+    (cancelled)="closeBulkDelete()"
+  />
 </main>

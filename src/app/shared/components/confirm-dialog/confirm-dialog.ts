@@ -99,6 +99,7 @@ export class ConfirmDialogComponent {
   readonly cancelText = input('Cancel');
 
   readonly confirmed = output<void>();
+  readonly cancelled = output<void>();
 
   protected readonly titleId = 'confirm-dialog-title';
   protected readonly messageId = 'confirm-dialog-message';
@@ -125,7 +126,7 @@ export class ConfirmDialogComponent {
   }
 
   protected onCancel(): void {
-    // Cancelled paths (Escape / backdrop / Cancel) intentionally emit nothing.
+    this.cancelled.emit();
   }
 
   protected onKeydown(event: KeyboardEvent): void {

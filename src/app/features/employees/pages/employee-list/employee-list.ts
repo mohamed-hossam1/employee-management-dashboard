@@ -9,6 +9,7 @@ import { SearchBarComponent } from '../../../../shared/components/search-bar/sea
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state';
 import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import {
   Employee,
   EmployeeFilters,
@@ -33,6 +34,7 @@ import {
     PaginationComponent,
     EmptyStateComponent,
     SkeletonComponent,
+    ConfirmDialogComponent,
     EmployeeTableComponent,
     EmployeeFiltersComponent
   ],
@@ -60,6 +62,9 @@ export class EmployeeListPage {
 
   readonly departments = signal<DepartmentOption[]>([]);
   readonly selectedIds = signal<string[]>([]);
+  readonly deleteTarget = signal<Employee | null>(null);
+  readonly bulkDeleteOpen = signal(false);
+  readonly deleting = signal(false);
 
   readonly departmentNames = computed(() => {
     const map: Record<string, string> = {};
@@ -84,9 +89,23 @@ export class EmployeeListPage {
   readonly currentFilters = computed(() => this.filters());
   readonly currentSortField = computed(() => this.pagination().sort.field);
   readonly currentSortDir = computed(() => this.pagination().sort.dir);
+  readonly selectedCount = computed(() => this.selectedIds().length);
   readonly showEmpty = computed(() => !this.loading() && this.total() === 0);
   readonly projectId = computed(() => this.projectState.activeProjectId());
   readonly initialLoad = computed(() => this.loading() && this.employees().length === 0);
+
+  readonly deleteMessage = computed(() => {
+    const employee = this.deleteTarget();
+    if (!employee) {
+      return '';
+    }
+    return `Delete ${employee.firstName} ${employee.lastName}? This action cannot be undone.`;
+  });
+
+  readonly bulkDeleteMessage = computed(
+    () =>
+      `Delete ${this.selectedCount()} selected employee${this.selectedCount() === 1 ? '' : 's'}? This action cannot be undone.`
+  );
 
   constructor() {
     this.projectState.activeProjectChanged$
@@ -147,6 +166,71 @@ export class EmployeeListPage {
       return;
     }
     this.router.navigate(['/p', projectId, 'employees', employee.id]);
+  }
+
+  protected onEdit(employee: Employee): void {
+    const projectId = this.projectId();
+    if (!projectId) {
+      return;
+    }
+    this.router.navigate(['/p', projectId, 'employees', employee.id, 'edit']);
+  }
+
+  protected onDeleteRequest(employee: Employee): void {
+    this.deleteTarget.set(employee);
+  }
+
+  protected closeDelete(): void {
+    this.deleteTarget.set(null);
+  }
+
+  protected async confirmDelete(): Promise<void> {
+    const employee = this.deleteTarget();
+    if (!employee) {
+      return;
+    }
+    this.deleting.set(true);
+    try {
+      await this.employeeService.delete(employee.id);
+      this.selectedIds.update((ids) => ids.filter((id) => id !== employee.id));
+      this.deleteTarget.set(null);
+      this.notifications.success('Employee deleted.');
+    } catch {
+      this.notifications.error('Unable to delete employee.');
+    } finally {
+      this.deleting.set(false);
+    }
+  }
+
+  protected openBulkDelete(): void {
+    if (this.selectedIds().length === 0) {
+      return;
+    }
+    this.bulkDeleteOpen.set(true);
+  }
+
+  protected closeBulkDelete(): void {
+    this.bulkDeleteOpen.set(false);
+  }
+
+  protected async confirmBulkDelete(): Promise<void> {
+    const ids = this.selectedIds();
+    if (ids.length === 0) {
+      return;
+    }
+    this.deleting.set(true);
+    try {
+      await this.employeeService.deleteMany(ids);
+      this.selectedIds.set([]);
+      this.bulkDeleteOpen.set(false);
+      this.notifications.success(
+        ids.length === 1 ? 'Employee deleted.' : `${ids.length} employees deleted.`
+      );
+    } catch {
+      this.notifications.error('Unable to delete selected employees.');
+    } finally {
+      this.deleting.set(false);
+    }
   }
 
   protected addEmployeeLink(): string[] {
