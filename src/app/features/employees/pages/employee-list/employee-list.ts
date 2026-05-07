@@ -25,6 +25,7 @@ import {
   EmployeeFiltersComponent,
   DepartmentOption
 } from '../../components/employee-filters/employee-filters';
+import { ImportExportDialogComponent } from '../../components/import-export-dialog/import-export-dialog';
 
 @Component({
   selector: 'app-employee-list',
@@ -36,7 +37,8 @@ import {
     SkeletonComponent,
     ConfirmDialogComponent,
     EmployeeTableComponent,
-    EmployeeFiltersComponent
+    EmployeeFiltersComponent,
+    ImportExportDialogComponent
   ],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.css'
@@ -65,6 +67,7 @@ export class EmployeeListPage {
   readonly deleteTarget = signal<Employee | null>(null);
   readonly bulkDeleteOpen = signal(false);
   readonly deleting = signal(false);
+  readonly importExportOpen = signal(false);
 
   readonly departmentNames = computed(() => {
     const map: Record<string, string> = {};
@@ -93,6 +96,31 @@ export class EmployeeListPage {
   readonly showEmpty = computed(() => !this.loading() && this.total() === 0);
   readonly projectId = computed(() => this.projectState.activeProjectId());
   readonly initialLoad = computed(() => this.loading() && this.employees().length === 0);
+
+  /** Filtered employees (all pages) for CSV export. */
+  readonly filteredEmployees = computed(() => {
+    const all = this.employees();
+    const f = this.filters();
+    let result = [...all];
+    const search = f.search.trim().toLowerCase();
+    if (search) {
+      result = result.filter((e) =>
+        [e.firstName, e.lastName, e.email, e.position, e.phone]
+          .join(' ')
+          .toLowerCase()
+          .includes(search)
+      );
+    }
+    if (f.departmentId) {
+      result = result.filter((e) => e.departmentId === f.departmentId);
+    }
+    if (f.status) {
+      result = result.filter((e) => e.status === f.status);
+    }
+    return result;
+  });
+
+  readonly existingEmails = computed(() => this.employees().map((e) => e.email));
 
   readonly deleteMessage = computed(() => {
     const employee = this.deleteTarget();
@@ -243,5 +271,18 @@ export class EmployeeListPage {
     if (projectId) {
       this.router.navigate(['/p', projectId, 'employees', 'new']);
     }
+  }
+
+  protected openImportExport(): void {
+    this.importExportOpen.set(true);
+  }
+
+  protected closeImportExport(): void {
+    this.importExportOpen.set(false);
+  }
+
+  protected async onImported(): Promise<void> {
+    this.importExportOpen.set(false);
+    await this.refresh();
   }
 }

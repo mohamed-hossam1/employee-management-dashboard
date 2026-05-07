@@ -5,6 +5,9 @@
       <p class="employee-list__subtitle">Browse, search, and manage people in this project.</p>
     </div>
     <div class="employee-list__header-actions">
+      <button type="button" class="employee-list__btn" (click)="openImportExport()">
+        Import / Export
+      </button>
       <a class="employee-list__btn employee-list__btn--primary" [routerLink]="addEmployeeLink()">
         Add employee
       </a>
@@ -105,5 +108,14 @@
     cancelText="Cancel"
     (confirmed)="confirmBulkDelete()"
     (cancelled)="closeBulkDelete()"
+  />
+
+  <app-import-export-dialog
+    [open]="importExportOpen()"
+    [employees]="filteredEmployees()"
+    [departments]="departments()"
+    [existingEmails]="existingEmails()"
+    (close)="closeImportExport()"
+    (imported)="onImported()"
   />
 </main>
