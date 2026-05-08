@@ -137,6 +137,7 @@
 }
 
 .employee-form__file-label {
+  position: relative;
   display: inline-flex;
   align-items: center;
   width: fit-content;

@@ -199,6 +199,7 @@ export interface ImportSummary {
         cursor: not-allowed;
       }
       .ie-dialog__file-label {
+        position: relative;
         display: inline-flex;
         padding: 0.5rem 0.875rem;
         border-radius: 0.5rem;

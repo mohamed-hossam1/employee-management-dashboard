@@ -49,3 +49,5 @@ image.png
 plan.md
 specs
 /.agents
+
+.env

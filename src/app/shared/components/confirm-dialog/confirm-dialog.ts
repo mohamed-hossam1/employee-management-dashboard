@@ -101,8 +101,11 @@ export class ConfirmDialogComponent {
   readonly confirmed = output<void>();
   readonly cancelled = output<void>();
 
-  protected readonly titleId = 'confirm-dialog-title';
-  protected readonly messageId = 'confirm-dialog-message';
+  private static nextId = 0;
+  private readonly instanceId = ConfirmDialogComponent.nextId++;
+
+  protected readonly titleId = `confirm-dialog-title-${this.instanceId}`;
+  protected readonly messageId = `confirm-dialog-message-${this.instanceId}`;
 
   private readonly host = inject(ElementRef);
 
