@@ -30,9 +30,8 @@ export const routes: Routes = [
       {
         path: ':projectId/departments',
         canActivate: [projectGuard],
-        loadComponent: () =>
-          import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
-        data: { section: 'departments' }
+        loadChildren: () =>
+          import('./features/departments/departments.routes').then((m) => m.departmentsRoutes)
       },
       {
         path: ':projectId/attendance',
