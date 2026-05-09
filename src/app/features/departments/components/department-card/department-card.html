@@ -1,0 +1,49 @@
+<article
+  class="dept-card"
+  [attr.aria-labelledby]="'dept-' + department().id + '-name'"
+>
+  <div class="dept-card__top">
+    <h3 [id]="'dept-' + department().id + '-name'" class="dept-card__name">
+      {{ department().name }}
+    </h3>
+    <app-badge
+      [text]="department().employeeCount + (department().employeeCount === 1 ? ' employee' : ' employees')"
+      variant="info"
+    />
+  </div>
+
+  @if (department().description) {
+    <p class="dept-card__description">{{ department().description }}</p>
+  }
+
+  <p class="dept-card__manager">
+    <span class="dept-card__label">Manager</span>
+    <span>{{ managerName() }}</span>
+  </p>
+
+  <div class="dept-card__actions">
+    <button
+      type="button"
+      class="dept-card__action dept-card__action--primary"
+      (click)="open.emit()"
+    >
+      View
+    </button>
+    <button
+      type="button"
+      class="dept-card__action"
+      [attr.aria-label]="'Edit ' + department().name"
+      (click)="edit.emit()"
+    >
+      Edit
+    </button>
+    <button
+      type="button"
+      class="dept-card__action dept-card__action--danger"
+      [attr.aria-label]="'Delete ' + department().name"
+      (click)="delete.emit()"
+    >
+      Delete
+    </button>
+  </div>
+</article>
