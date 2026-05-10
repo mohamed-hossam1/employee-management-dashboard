@@ -1,0 +1,71 @@
+<div class="dialog-backdrop" (click)="cancel.emit()">
+  <div
+    class="dialog"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="isEdit ? 'edit-department-title' : 'create-department-title'"
+    tabindex="-1"
+    (click)="$event.stopPropagation()"
+    (keydown)="onKeydown($event)"
+  >
+    <header class="dialog__header">
+      <h2
+        [id]="isEdit ? 'edit-department-title' : 'create-department-title'"
+        class="dialog__title"
+      >
+        {{ isEdit ? 'Edit department' : 'Add department' }}
+      </h2>
+      <button type="button" class="dialog__close" aria-label="Close dialog" (click)="cancel.emit()">
+        ×
+      </button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <app-form-field controlId="department-name" label="Name" [error]="nameError()">
+        <input
+          id="department-name"
+          type="text"
+          formControlName="name"
+          class="dialog__input"
+          autocomplete="organization"
+          [attr.aria-invalid]="nameError() ? 'true' : null"
+        />
+      </app-form-field>
+
+      <app-form-field
+        controlId="department-description"
+        label="Description"
+        hint="Optional"
+        [error]="descriptionError()"
+      >
+        <textarea
+          id="department-description"
+          formControlName="description"
+          class="dialog__input dialog__input--textarea"
+          rows="3"
+          [attr.aria-invalid]="descriptionError() ? 'true' : null"
+        ></textarea>
+      </app-form-field>
+
+      <app-form-field controlId="department-manager" label="Manager" hint="Optional">
+        <select id="department-manager" formControlName="managerId" class="dialog__input">
+          <option value="">No manager</option>
+          @for (manager of managers(); track manager.id) {
+            <option [value]="manager.id">{{ manager.name }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <footer class="dialog__footer">
+        <button type="button" class="dialog__btn" (click)="cancel.emit()">Cancel</button>
+        <button
+          type="submit"
+          class="dialog__btn dialog__btn--primary"
+          [disabled]="saving() || form.invalid"
+        >
+          {{ saving() ? (isEdit ? 'Saving…' : 'Creating…') : isEdit ? 'Save' : 'Create' }}
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>
