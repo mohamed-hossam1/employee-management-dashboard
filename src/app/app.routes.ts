@@ -36,9 +36,8 @@ export const routes: Routes = [
       {
         path: ':projectId/attendance',
         canActivate: [projectGuard],
-        loadComponent: () =>
-          import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
-        data: { section: 'attendance' }
+        loadChildren: () =>
+          import('./features/attendance/attendance.routes').then((m) => m.attendanceRoutes)
       }
     ]
   },
