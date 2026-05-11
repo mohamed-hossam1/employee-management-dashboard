@@ -1,0 +1,164 @@
+<main class="department-detail" role="main" aria-labelledby="department-detail-heading">
+  <header class="department-detail__header">
+    <a class="department-detail__back" [routerLink]="listLink()">← Back to departments</a>
+  </header>
+
+  @if (loading() && !department()) {
+    <div class="department-detail__loading" role="status" aria-busy="true" aria-label="Loading department">
+      <app-loader variant="inline" />
+      <span>Loading department…</span>
+    </div>
+  } @else if (notFound() || !department()) {
+    <section class="department-detail__empty" aria-labelledby="department-detail-heading">
+      <h1 id="department-detail-heading">Department not found</h1>
+      <p>This department may have been deleted or belongs to another project.</p>
+      <a class="department-detail__btn" [routerLink]="listLink()">Return to list</a>
+    </section>
+  } @else {
+    <article class="department-detail__card">
+      <div class="department-detail__identity">
+        <div>
+          <h1 id="department-detail-heading" class="department-detail__title">
+            {{ department()!.name }}
+          </h1>
+          @if (department()!.description) {
+            <p class="department-detail__description">{{ department()!.description }}</p>
+          }
+          <app-badge
+            [text]="employeeCount() + (employeeCount() === 1 ? ' employee' : ' employees')"
+            variant="info"
+          />
+        </div>
+        <div class="department-detail__actions">
+          <button type="button" class="department-detail__btn" (click)="openEdit()">Edit</button>
+          <button
+            type="button"
+            class="department-detail__btn department-detail__btn--danger"
+            (click)="openDelete()"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <section class="department-detail__manager" aria-labelledby="manager-heading">
+        <h2 id="manager-heading" class="department-detail__section-title">Manager</h2>
+        <div class="department-detail__manager-row">
+          @if (managerEmployee(); as manager) {
+            <app-avatar
+              [src]="manager.avatar"
+              [name]="manager.firstName + ' ' + manager.lastName"
+              size="md"
+            />
+            <div>
+              <p class="department-detail__manager-name">
+                {{ manager.firstName }} {{ manager.lastName }}
+              </p>
+              <p class="department-detail__manager-meta">{{ manager.position }}</p>
+            </div>
+          } @else {
+            <p class="department-detail__muted">{{ managerName() }}</p>
+          }
+        </div>
+      </section>
+    </article>
+
+    <section class="department-detail__employees" aria-labelledby="employees-heading">
+      <div class="department-detail__employees-header">
+        <h2 id="employees-heading" class="department-detail__section-title">
+          Assigned employees
+        </h2>
+        <p class="department-detail__hint">Click a row to move an employee to another department.</p>
+      </div>
+
+      @if (assignedEmployees().length === 0) {
+        <app-empty-state
+          title="No employees assigned"
+          message="Employees assigned to this department will appear here."
+          icon="👤"
+        />
+      } @else {
+        <app-data-table
+          [columns]="columns"
+          [data]="tableRows()"
+          [loading]="false"
+          trackBy="id"
+          (rowClick)="onRowClick($event)"
+        />
+      }
+    </section>
+  }
+
+  @if (dialogOpen() && department()) {
+    <app-department-form-dialog
+      [department]="department()"
+      [managers]="managerOptions()"
+      [existingNames]="existingNames()"
+      [saving]="saving()"
+      (cancel)="closeDialog()"
+      (save)="onSave($event)"
+    />
+  }
+
+  <app-confirm-dialog
+    [open]="deleteOpen()"
+    title="Delete department"
+    [message]="deleteMessage()"
+    confirmText="Delete"
+    cancelText="Cancel"
+    (confirmed)="confirmDelete()"
+    (cancelled)="closeDelete()"
+  />
+
+  @if (reassignEmployee(); as employee) {
+    <div class="reassign-backdrop" (click)="closeReassign()">
+      <div
+        class="reassign-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reassign-title"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 id="reassign-title" class="reassign-dialog__title">Move employee</h2>
+        <p class="reassign-dialog__text">
+          Move <strong>{{ employee.firstName }} {{ employee.lastName }}</strong> to another
+          department in this project.
+        </p>
+
+        @if (otherDepartments().length === 0) {
+          <p class="reassign-dialog__text">No other departments available in this project.</p>
+          <div class="reassign-dialog__actions">
+            <button type="button" class="department-detail__btn" (click)="closeReassign()">
+              Close
+            </button>
+          </div>
+        } @else {
+          <label class="reassign-dialog__label" for="reassign-target">Target department</label>
+          <select
+            id="reassign-target"
+            class="reassign-dialog__select"
+            [value]="reassignTargetId()"
+            (change)="onReassignTargetChange($event)"
+          >
+            @for (dept of otherDepartments(); track dept.id) {
+              <option [value]="dept.id">{{ dept.name }}</option>
+            }
+          </select>
+          <div class="reassign-dialog__actions">
+            <button type="button" class="department-detail__btn" (click)="closeReassign()">
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="department-detail__btn department-detail__btn--primary"
+              [disabled]="reassigning() || !reassignTargetId()"
+              (click)="confirmReassign()"
+            >
+              {{ reassigning() ? 'Moving…' : 'Move employee' }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</main>
