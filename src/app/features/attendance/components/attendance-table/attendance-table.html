@@ -1,0 +1,39 @@
+<div class="attendance-table" [attr.aria-busy]="loading() ? 'true' : null">
+  @if (loading()) {
+    <app-loader variant="overlay" />
+  }
+
+  <table class="attendance-table__table">
+    <thead>
+      <tr>
+        <th scope="col">Employee</th>
+        <th scope="col">Department</th>
+        <th scope="col">Date</th>
+        <th scope="col">Check in</th>
+        <th scope="col">Check out</th>
+        <th scope="col">Hours</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.id) {
+        <tr>
+          <td>
+            <span class="attendance-table__name">{{ row.employeeName }}</span>
+          </td>
+          <td>{{ row.departmentName }}</td>
+          <td>{{ row.date | date: 'mediumDate' }}</td>
+          <td>{{ formatTime(row.checkIn) }}</td>
+          <td>{{ formatTime(row.checkOut) }}</td>
+          <td>{{ formatHours(row.hoursWorked) }}</td>
+          <td>
+            <app-badge
+              [text]="statusLabel(row.status)"
+              [variant]="statusVariant(row.status)"
+            />
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

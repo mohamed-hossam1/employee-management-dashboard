@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+
+.attendance-table {
+  position: relative;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.attendance-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.attendance-table__table th,
+.attendance-table__table td {
+  text-align: left;
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.attendance-table__table th {
+  font-weight: 600;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface) 80%, var(--border));
+}
+
+.attendance-table__name {
+  font-weight: 500;
+}
+
+.attendance-table__table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-brand) 6%, transparent);
+}

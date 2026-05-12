@@ -1,0 +1,48 @@
+<section class="check-in-out" aria-labelledby="check-in-out-heading">
+  <h2 id="check-in-out-heading" class="check-in-out__title">Today's check-in / check-out</h2>
+  <p class="check-in-out__subtitle">Record attendance for an employee for the current day.</p>
+
+  <div class="check-in-out__row">
+    <label class="check-in-out__label" for="check-in-employee">Employee</label>
+    <select
+      id="check-in-employee"
+      class="check-in-out__select"
+      [value]="selectedId()"
+      (change)="onSelect($event)"
+      [disabled]="busy()"
+    >
+      <option value="">Select employee</option>
+      @for (opt of options(); track opt.employee.id) {
+        <option [value]="opt.employee.id">
+          {{ opt.employee.firstName }} {{ opt.employee.lastName }}
+          @if (opt.todayRecord?.checkOut) {
+            (done)
+          } @else if (opt.todayRecord) {
+            (in)
+          }
+        </option>
+      }
+    </select>
+  </div>
+
+  <p class="check-in-out__status" aria-live="polite">{{ statusText() }}</p>
+
+  <div class="check-in-out__actions">
+    <button
+      type="button"
+      class="check-in-out__btn check-in-out__btn--primary"
+      [disabled]="!canCheckIn()"
+      (click)="onCheckIn()"
+    >
+      Check in
+    </button>
+    <button
+      type="button"
+      class="check-in-out__btn"
+      [disabled]="!canCheckOut()"
+      (click)="onCheckOut()"
+    >
+      Check out
+    </button>
+  </div>
+</section>
