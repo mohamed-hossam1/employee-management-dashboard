@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.attendance-stats {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.attendance-stats__header {
+  margin-bottom: 1rem;
+}
+
+.attendance-stats__title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.attendance-stats__subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.attendance-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.attendance-stats__chart {
+  position: relative;
+  height: 16rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg);
+}
+
+.attendance-stats__chart--pie {
+  min-height: 18rem;
+}
+
+@media (max-width: 40rem) {
+  .attendance-stats__chart {
+    height: 14rem;
+  }
+}

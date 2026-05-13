@@ -1,0 +1,43 @@
+<section class="attendance-stats" aria-labelledby="attendance-stats-heading">
+  <header class="attendance-stats__header">
+    <h2 id="attendance-stats-heading" class="attendance-stats__title">Statistics</h2>
+    @if (monthLabel()) {
+      <p class="attendance-stats__subtitle">{{ monthLabel() }}</p>
+    }
+  </header>
+
+  @if (!hasData()) {
+    <app-empty-state
+      title="Not enough data for charts"
+      message="Record attendance over a few days to see rates, late trends, and department split."
+      icon="📊"
+    />
+  } @else {
+    <div class="attendance-stats__grid">
+      <div class="attendance-stats__chart">
+        <canvas
+          baseChart
+          [type]="barChart().type"
+          [data]="barChart().data"
+          [options]="barChart().options"
+        ></canvas>
+      </div>
+      <div class="attendance-stats__chart">
+        <canvas
+          baseChart
+          [type]="lineChart().type"
+          [data]="lineChart().data"
+          [options]="lineChart().options"
+        ></canvas>
+      </div>
+      <div class="attendance-stats__chart attendance-stats__chart--pie">
+        <canvas
+          baseChart
+          [type]="pieChart().type"
+          [data]="pieChart().data"
+          [options]="pieChart().options"
+        ></canvas>
+      </div>
+    </div>
+  }
+</section>
