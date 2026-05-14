@@ -1,0 +1,195 @@
+<main class="attendance-page" role="main" aria-labelledby="attendance-heading">
+  <header class="attendance-page__header">
+    <div>
+      <h1 id="attendance-heading" class="attendance-page__title">Attendance</h1>
+      <p class="attendance-page__subtitle">
+        Track daily check-in/out, history, and monthly reports for this project.
+      </p>
+    </div>
+  </header>
+
+  <section class="attendance-page__summary" aria-label="Today summary">
+    <app-stats-card
+      icon="✓"
+      label="Present today"
+      [value]="todayStats().presentCount"
+    />
+    <app-stats-card
+      icon="⏱"
+      label="Late today"
+      [value]="todayStats().lateCount"
+    />
+    <app-stats-card
+      icon="○"
+      label="Absent today"
+      [value]="todayStats().absentCount"
+    />
+    <app-stats-card
+      icon="%"
+      label="Attendance rate"
+      [value]="todayStats().attendanceRate + '%'"
+    />
+  </section>
+
+  <app-check-in-out
+    [options]="checkInOptions()"
+    [busy]="checkInBusy()"
+    (checkIn)="onCheckIn($event)"
+    (checkOut)="onCheckOut($event)"
+  />
+
+  <nav class="attendance-page__tabs" aria-label="Attendance views">
+    <button
+      type="button"
+      class="attendance-page__tab"
+      [class.attendance-page__tab--active]="viewMode() === 'history'"
+      (click)="setView('history')"
+    >
+      History
+    </button>
+    <button
+      type="button"
+      class="attendance-page__tab"
+      [class.attendance-page__tab--active]="viewMode() === 'report'"
+      (click)="setView('report')"
+    >
+      Monthly report
+    </button>
+    <button
+      type="button"
+      class="attendance-page__tab"
+      [class.attendance-page__tab--active]="viewMode() === 'stats'"
+      (click)="setView('stats')"
+    >
+      Statistics
+    </button>
+  </nav>
+
+  @if (viewMode() === 'history') {
+    <section class="attendance-page__history" aria-labelledby="history-heading">
+      <h2 id="history-heading" class="attendance-page__section-title">Attendance history</h2>
+
+      <div class="attendance-page__toolbar">
+        <div class="attendance-page__search">
+          <app-search-bar
+            placeholder="Search by employee name"
+            [debounceMs]="300"
+            variant="contextual"
+            (searchChange)="onSearch($event)"
+          />
+        </div>
+        <app-filter-panel
+          [fields]="filterFields()"
+          (filterChange)="onFilterChange($event)"
+        />
+      </div>
+
+      @if (initialLoad()) {
+        <div
+          class="attendance-page__skeleton"
+          role="status"
+          aria-busy="true"
+          aria-label="Loading attendance"
+        >
+          @for (row of [1, 2, 3, 4, 5]; track row) {
+            <app-skeleton variant="text" width="100%" height="2.5rem" />
+          }
+        </div>
+      } @else if (showEmpty()) {
+        <app-empty-state
+          title="No attendance records"
+          message="Try adjusting filters, or check employees in for today."
+          icon="🕒"
+        />
+      } @else {
+        <app-attendance-table [rows]="tableRows()" [loading]="loading()" />
+        <div class="attendance-page__footer">
+          <p class="attendance-page__count" aria-live="polite">
+            {{ total() }} record{{ total() === 1 ? '' : 's' }}
+          </p>
+          <app-pagination
+            [total]="total()"
+            [page]="page()"
+            [pageSize]="pageSize()"
+            [pageSizes]="[10, 25, 50]"
+            (pageChange)="onPageChange($event)"
+          />
+        </div>
+      }
+    </section>
+  }
+
+  @if (viewMode() === 'report') {
+    <section class="attendance-page__report" aria-labelledby="report-heading">
+      <div class="attendance-page__report-header">
+        <h2 id="report-heading" class="attendance-page__section-title">Monthly report</h2>
+        <label class="attendance-page__month">
+          <span class="attendance-page__month-label">Month</span>
+          <input
+            type="month"
+            [value]="reportMonth()"
+            (change)="onMonthChange($event)"
+            aria-label="Select report month"
+          />
+        </label>
+      </div>
+
+      @if (monthlyReport().byDay.length === 0 && monthlyReport().presentCount === 0) {
+        <app-empty-state
+          title="No data for this month"
+          message="There are no attendance records in the selected month yet."
+          icon="📅"
+        />
+      } @else {
+        <div class="attendance-page__report-summary">
+          <p><strong>{{ monthLabel() }}</strong></p>
+          <p>
+            Present: {{ monthlyReport().presentCount }} · Late: {{ monthlyReport().lateCount }} ·
+            Absent slots: {{ monthlyReport().absentCount }} · Rate:
+            {{ monthlyReport().attendanceRate }}%
+          </p>
+        </div>
+
+        <div class="attendance-page__report-table-wrap">
+          <table class="attendance-page__report-table">
+            <thead>
+              <tr>
+                <th scope="col">Employee</th>
+                <th scope="col">Present</th>
+                <th scope="col">Late</th>
+                <th scope="col">Absent</th>
+                <th scope="col">Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of monthlyReport().byEmployee; track row.employeeId) {
+                <tr>
+                  <td>{{ row.employeeName }}</td>
+                  <td>{{ row.present }}</td>
+                  <td>{{ row.late }}</td>
+                  <td>{{ row.absent }}</td>
+                  <td>{{ row.attendanceRate }}%</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+
+  @if (viewMode() === 'stats') {
+    <div class="attendance-page__stats-controls">
+      <label class="attendance-page__month">
+        <span class="attendance-page__month-label">Month</span>
+        <input
+          type="month"
+          [value]="reportMonth()"
+          (change)="onMonthChange($event)"
+          aria-label="Select statistics month"
+        />
+      </label>
+    </div>
+    <app-attendance-stats [chartData]="chartData()" [monthLabel]="monthLabel()" />
+  }
+</main>
