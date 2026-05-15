@@ -17,9 +17,8 @@ export const routes: Routes = [
       {
         path: ':projectId/dashboard',
         canActivate: [projectGuard],
-        loadComponent: () =>
-          import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
-        data: { section: 'dashboard' }
+        loadChildren: () =>
+          import('./features/dashboard/dashboard.routes').then((m) => m.dashboardRoutes)
       },
       {
         path: ':projectId/employees',
