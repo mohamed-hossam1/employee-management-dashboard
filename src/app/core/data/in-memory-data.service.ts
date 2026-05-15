@@ -239,6 +239,50 @@ export class InMemoryDataService implements InMemoryDbService {
     );
 
     const attendance: AttendanceRecord[] = [];
+    const p1Employees = employees.filter((e) => e.projectId === 'p1');
+    let attendanceSeq = 1;
+    const today = new Date();
+    for (let dayOffset = 1; dayOffset <= 12; dayOffset++) {
+      const day = new Date(today);
+      day.setDate(today.getDate() - dayOffset);
+      // Skip weekends for more realistic demo data
+      if (day.getDay() === 0 || day.getDay() === 6) {
+        continue;
+      }
+      const y = day.getFullYear();
+      const m = String(day.getMonth() + 1).padStart(2, '0');
+      const d = String(day.getDate()).padStart(2, '0');
+      const date = `${y}-${m}-${d}`;
+
+      p1Employees.forEach((emp, index) => {
+        // Leave ~15% of employee-days without a record (derived absent)
+        if ((index + dayOffset) % 7 === 0) {
+          return;
+        }
+        const late = (index + dayOffset) % 5 === 0;
+        const checkInHour = late ? 9 : 8;
+        const checkInMinute = late ? 15 + (index % 20) : 30 + (index % 25);
+        const checkIn = new Date(day);
+        checkIn.setHours(checkInHour, checkInMinute, 0, 0);
+        const checkOut = new Date(day);
+        checkOut.setHours(17, 0 + (index % 30), 0, 0);
+        const hoursWorked =
+          Math.round(((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60)) * 100) / 100;
+
+        attendance.push({
+          id: `a${attendanceSeq++}`,
+          projectId: 'p1',
+          employeeId: emp.id,
+          date,
+          checkIn: checkIn.toISOString(),
+          checkOut: checkOut.toISOString(),
+          status: late ? 'late' : 'present',
+          hoursWorked,
+          notes: ''
+        });
+      });
+    }
+
     const activity: ActivityItem[] = [];
 
     return { users, projects, employees, departments, attendance, activity };
