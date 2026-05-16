@@ -1,0 +1,27 @@
+<section class="activity-feed" aria-labelledby="activity-feed-heading">
+  <h2 id="activity-feed-heading" class="activity-feed__title">Recent activity</h2>
+
+  @if (items().length === 0) {
+    <app-empty-state
+      title="No recent activity"
+      message="Project events will appear here as people work."
+      icon="📋"
+    />
+  } @else {
+    <ol class="activity-feed__list">
+      @for (item of items(); track item.id) {
+        <li class="activity-feed__item">
+          <span class="activity-feed__icon" aria-hidden="true">
+            {{ actionIcon(item.action) }}
+          </span>
+          <div class="activity-feed__body">
+            <p class="activity-feed__description">{{ item.description }}</p>
+            <time class="activity-feed__time" [attr.datetime]="item.timestamp">
+              {{ item.timestamp | date: 'medium' }}
+            </time>
+          </div>
+        </li>
+      }
+    </ol>
+  }
+</section>

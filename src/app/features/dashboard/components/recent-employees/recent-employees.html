@@ -1,0 +1,31 @@
+<section class="recent-employees" aria-labelledby="recent-employees-heading">
+  <h2 id="recent-employees-heading" class="recent-employees__title">Recent employees</h2>
+
+  @if (employees().length === 0) {
+    <app-empty-state
+      title="No employees yet"
+      message="New hires will show up here once added to this project."
+      icon="👤"
+    />
+  } @else {
+    <ul class="recent-employees__list">
+      @for (employee of employees(); track employee.id) {
+        <li>
+          <a class="recent-employees__item" [routerLink]="employeeLink(employee)">
+            <app-avatar
+              [src]="employee.avatar"
+              [name]="fullName(employee)"
+              size="md"
+            />
+            <span class="recent-employees__meta">
+              <span class="recent-employees__name">{{ fullName(employee) }}</span>
+              <span class="recent-employees__dept">
+                {{ departmentName(employee.departmentId) }}
+              </span>
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>

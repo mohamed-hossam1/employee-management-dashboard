@@ -1,0 +1,12 @@
+<div class="stats-widget" [class]="'stats-widget--' + accent()">
+  <div class="stats-widget__head">
+    <span class="stats-widget__icon" aria-hidden="true">{{ icon() }}</span>
+    @if (trend(); as t) {
+      <span class="stats-widget__trend" [class]="'stats-widget__trend--' + t.direction">
+        {{ t.direction === 'up' ? '▲' : '▼' }} {{ t.percent }}%
+      </span>
+    }
+  </div>
+  <p class="stats-widget__value">{{ value() }}</p>
+  <p class="stats-widget__label">{{ label() }}</p>
+</div>
