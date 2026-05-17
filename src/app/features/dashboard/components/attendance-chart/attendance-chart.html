@@ -1,0 +1,38 @@
+<section class="attendance-chart" aria-labelledby="dashboard-charts-heading">
+  <h2 id="dashboard-charts-heading" class="attendance-chart__title">Charts</h2>
+
+  @if (!hasData()) {
+    <app-empty-state
+      title="Not enough data for charts"
+      message="Add employees, departments, and attendance to populate dashboard charts."
+      icon="📊"
+    />
+  } @else {
+    <div class="attendance-chart__grid">
+      <div class="attendance-chart__panel">
+        <canvas
+          baseChart
+          [type]="barChart().type"
+          [data]="barChart().data"
+          [options]="barChart().options"
+        ></canvas>
+      </div>
+      <div class="attendance-chart__panel">
+        <canvas
+          baseChart
+          [type]="pieChart().type"
+          [data]="pieChart().data"
+          [options]="pieChart().options"
+        ></canvas>
+      </div>
+      <div class="attendance-chart__panel">
+        <canvas
+          baseChart
+          [type]="lineChart().type"
+          [data]="lineChart().data"
+          [options]="lineChart().options"
+        ></canvas>
+      </div>
+    </div>
+  }
+</section>

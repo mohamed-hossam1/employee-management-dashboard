@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.attendance-chart {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.attendance-chart__title {
+  margin: 0 0 1rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.attendance-chart__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.attendance-chart__panel {
+  position: relative;
+  height: 16rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg);
+}
+
+@media (max-width: 40rem) {
+  .attendance-chart__panel {
+    height: 14rem;
+  }
+}
