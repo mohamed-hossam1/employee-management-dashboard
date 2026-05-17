@@ -1,0 +1,114 @@
+<main class="dashboard-page" role="main" aria-labelledby="dashboard-heading">
+  <header class="dashboard-page__header">
+    <div>
+      <h1 id="dashboard-heading" class="dashboard-page__title">Dashboard</h1>
+      <p class="dashboard-page__subtitle">
+        Overview for <strong>{{ projectName() }}</strong>
+      </p>
+    </div>
+    <div class="dashboard-page__actions" aria-label="Quick actions">
+      <button type="button" class="dashboard-page__btn dashboard-page__btn--primary" (click)="addEmployee()">
+        Add employee
+      </button>
+      <button type="button" class="dashboard-page__btn" (click)="recordAttendance()">
+        Record attendance
+      </button>
+      <button type="button" class="dashboard-page__btn" (click)="openNewDepartment()">
+        New department
+      </button>
+      <button type="button" class="dashboard-page__btn" (click)="exportReport()">
+        Export report
+      </button>
+    </div>
+  </header>
+
+  <section class="dashboard-page__stats" aria-label="Project overview stats">
+    @if (loading()) {
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <app-skeleton variant="rectangle" width="100%" height="6.5rem" />
+      }
+    } @else {
+      <app-stats-widget
+        icon="👥"
+        label="Total employees"
+        [value]="stats().totalEmployees"
+        accent="brand"
+      />
+      <app-stats-widget
+        icon="🏢"
+        label="Total departments"
+        [value]="stats().totalDepartments"
+        accent="info"
+      />
+      <app-stats-widget
+        icon="✓"
+        label="Attendance today"
+        [value]="stats().attendanceToday"
+        accent="success"
+      />
+      <app-stats-widget
+        icon="◎"
+        label="Present today"
+        [value]="stats().presentCount"
+        accent="success"
+      />
+      <app-stats-widget
+        icon="○"
+        label="Absent today"
+        [value]="stats().absentCount"
+        accent="danger"
+      />
+      <app-stats-widget
+        icon="⏱"
+        label="Late today"
+        [value]="stats().lateCount"
+        accent="warning"
+      />
+    }
+  </section>
+
+  <div class="dashboard-page__mid">
+    @if (loading()) {
+      <div class="dashboard-page__panel-skeleton">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <app-skeleton variant="text" width="100%" height="2.75rem" />
+        }
+      </div>
+      <div class="dashboard-page__panel-skeleton">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <app-skeleton variant="text" width="100%" height="2.75rem" />
+        }
+      </div>
+    } @else {
+      <app-recent-employees
+        [employees]="recentEmployees()"
+        [departmentNames]="departmentNames()"
+        [projectId]="projectId()"
+      />
+      <app-activity-feed [items]="recentActivity()" />
+    }
+  </div>
+
+  <section class="dashboard-page__charts" aria-label="Dashboard charts">
+    @if (loading()) {
+      <div class="dashboard-page__charts-skeleton">
+        @for (i of [1, 2, 3]; track i) {
+          <app-skeleton variant="rectangle" width="100%" height="16rem" />
+        }
+      </div>
+    } @else {
+      <app-attendance-chart [chartData]="chartData()" />
+    }
+  </section>
+
+  @if (departmentDialogOpen()) {
+    <app-department-form-dialog
+      [department]="null"
+      [managers]="managerOptions()"
+      [existingNames]="existingDeptNames()"
+      [saving]="savingDepartment()"
+      (cancel)="closeDepartmentDialog()"
+      (save)="onSaveDepartment($event)"
+    />
+  }
+</main>
