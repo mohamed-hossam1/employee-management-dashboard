@@ -284,6 +284,41 @@ export class InMemoryDataService implements InMemoryDbService {
     }
 
     const activity: ActivityItem[] = [];
+    const activityTemplates: Array<{ action: string; description: string }> = [
+      { action: 'employee_added', description: 'Emma Stone joined Engineering' },
+      { action: 'department_created', description: 'Design department was created' },
+      { action: 'attendance_recorded', description: 'Daily attendance check-ins recorded' },
+      { action: 'employee_updated', description: 'Liam Johnson profile updated' },
+      { action: 'department_created', description: 'Sales department was created' },
+      { action: 'employee_added', description: 'Sophia Turner joined Design' },
+      { action: 'attendance_recorded', description: 'Late arrivals flagged for follow-up' },
+      { action: 'project_updated', description: 'Acme Corp workspace settings updated' },
+      { action: 'employee_added', description: 'Michael Brown joined Finance' },
+      { action: 'attendance_recorded', description: 'Weekly attendance summary generated' }
+    ];
+
+    activityTemplates.forEach((template, index) => {
+      const ts = new Date(today);
+      ts.setHours(9 + index, index * 3, 0, 0);
+      ts.setDate(today.getDate() - index);
+      activity.push({
+        id: `act${index + 1}`,
+        projectId: 'p1',
+        action: template.action,
+        description: template.description,
+        timestamp: ts.toISOString(),
+        userId: 'u1'
+      });
+    });
+
+    activity.push({
+      id: 'act100',
+      projectId: 'p2',
+      action: 'employee_added',
+      description: 'Nina Patel joined Operations',
+      timestamp: new Date(today.getTime() - 86400000).toISOString(),
+      userId: 'u1'
+    });
 
     return { users, projects, employees, departments, attendance, activity };
   }
