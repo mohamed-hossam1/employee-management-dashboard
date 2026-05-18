@@ -47,9 +47,8 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () =>
-          import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
-        data: { section: 'profile' }
+        loadChildren: () =>
+          import('./features/profile/profile.routes').then((m) => m.profileRoutes)
       }
     ]
   },
@@ -60,9 +59,8 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () =>
-          import('./pages/section-placeholder').then((m) => m.SectionPlaceholder),
-        data: { section: 'settings' }
+        loadChildren: () =>
+          import('./features/settings/settings.routes').then((m) => m.settingsRoutes)
       }
     ]
   },
