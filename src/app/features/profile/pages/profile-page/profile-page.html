@@ -1,0 +1,199 @@
+<main class="profile-page" role="main" aria-labelledby="profile-heading">
+  <header class="profile-page__header">
+    <h1 id="profile-heading" class="profile-page__title">Profile</h1>
+    <p class="profile-page__subtitle">Manage your personal details, password, and avatar.</p>
+  </header>
+
+  @if (user(); as current) {
+    <section class="profile-page__card" aria-labelledby="avatar-heading">
+      <h2 id="avatar-heading" class="profile-page__section-title">Avatar</h2>
+      <div class="profile-page__avatar-row">
+        <app-avatar [src]="displayAvatar()" [name]="current.name" size="lg" />
+        <div class="profile-page__avatar-controls">
+          <label class="profile-page__file-label" for="profile-avatar">
+            Choose image
+            <input
+              id="profile-avatar"
+              type="file"
+              accept="image/*"
+              class="profile-page__file"
+              (change)="onAvatarSelected($event)"
+            />
+          </label>
+          @if (avatarPreview()) {
+            <button type="button" class="profile-page__link" (click)="clearAvatarPreview()">
+              Cancel preview
+            </button>
+            <button
+              type="button"
+              class="profile-page__btn profile-page__btn--primary"
+              [disabled]="savingAvatar()"
+              (click)="saveAvatar()"
+            >
+              {{ savingAvatar() ? 'Saving…' : 'Save avatar' }}
+            </button>
+          } @else if (current.avatar) {
+            <button
+              type="button"
+              class="profile-page__link"
+              [disabled]="savingAvatar()"
+              (click)="removeAvatar()"
+            >
+              Remove avatar
+            </button>
+          }
+          @if (avatarError()) {
+            <p class="profile-page__error" role="alert">{{ avatarError() }}</p>
+          }
+          <p class="profile-page__hint">PNG or JPG up to 500KB.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-page__card" aria-labelledby="profile-details-heading">
+      <h2 id="profile-details-heading" class="profile-page__section-title">Profile details</h2>
+
+      <dl class="profile-page__meta">
+        <div>
+          <dt>User ID</dt>
+          <dd>{{ current.id }}</dd>
+        </div>
+        <div>
+          <dt>Role</dt>
+          <dd>{{ current.role }}</dd>
+        </div>
+        <div>
+          <dt>Joined</dt>
+          <dd>{{ current.createdAt | date: 'mediumDate' }}</dd>
+        </div>
+        <div>
+          <dt>Last login</dt>
+          <dd>{{ current.lastLogin | date: 'medium' }}</dd>
+        </div>
+      </dl>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        @if (profileError()) {
+          <p class="profile-page__error" role="alert">{{ profileError() }}</p>
+        }
+
+        <app-form-field controlId="profile-name" label="Name" [error]="profileFieldError('name')">
+          <input
+            id="profile-name"
+            type="text"
+            formControlName="name"
+            class="profile-page__input"
+            autocomplete="name"
+          />
+        </app-form-field>
+
+        <app-form-field controlId="profile-email" label="Email" [error]="profileFieldError('email')">
+          <input
+            id="profile-email"
+            type="email"
+            formControlName="email"
+            class="profile-page__input"
+            autocomplete="email"
+          />
+        </app-form-field>
+
+        <app-form-field
+          controlId="profile-phone"
+          label="Phone"
+          hint="Optional"
+          [error]="profileFieldError('phone')"
+        >
+          <input
+            id="profile-phone"
+            type="tel"
+            formControlName="phone"
+            class="profile-page__input"
+            autocomplete="tel"
+          />
+        </app-form-field>
+
+        <app-form-field controlId="profile-bio" label="Bio" hint="Optional">
+          <textarea
+            id="profile-bio"
+            formControlName="bio"
+            class="profile-page__input profile-page__input--textarea"
+            rows="3"
+          ></textarea>
+        </app-form-field>
+
+        <div class="profile-page__actions">
+          <button
+            type="submit"
+            class="profile-page__btn profile-page__btn--primary"
+            [disabled]="savingProfile() || profileForm.invalid"
+          >
+            {{ savingProfile() ? 'Saving…' : 'Save profile' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="profile-page__card" aria-labelledby="password-heading">
+      <h2 id="password-heading" class="profile-page__section-title">Change password</h2>
+      <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
+        @if (passwordError()) {
+          <p class="profile-page__error" role="alert">{{ passwordError() }}</p>
+        }
+
+        <app-form-field
+          controlId="current-password"
+          label="Current password"
+          [error]="passwordFieldError('currentPassword')"
+        >
+          <input
+            id="current-password"
+            type="password"
+            formControlName="currentPassword"
+            class="profile-page__input"
+            autocomplete="current-password"
+          />
+        </app-form-field>
+
+        <app-form-field
+          controlId="new-password"
+          label="New password"
+          [error]="passwordFieldError('newPassword')"
+        >
+          <input
+            id="new-password"
+            type="password"
+            formControlName="newPassword"
+            class="profile-page__input"
+            autocomplete="new-password"
+          />
+        </app-form-field>
+
+        <app-form-field
+          controlId="confirm-password"
+          label="Confirm new password"
+          [error]="passwordFieldError('confirmPassword')"
+        >
+          <input
+            id="confirm-password"
+            type="password"
+            formControlName="confirmPassword"
+            class="profile-page__input"
+            autocomplete="new-password"
+          />
+        </app-form-field>
+
+        <div class="profile-page__actions">
+          <button
+            type="submit"
+            class="profile-page__btn profile-page__btn--primary"
+            [disabled]="savingPassword() || passwordForm.invalid"
+          >
+            {{ savingPassword() ? 'Updating…' : 'Update password' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  } @else {
+    <p class="profile-page__subtitle">Sign in to view your profile.</p>
+  }
+</main>
