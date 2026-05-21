@@ -1,0 +1,44 @@
+<section class="notification-settings" aria-labelledby="notification-settings-heading">
+  <h2 id="notification-settings-heading" class="notification-settings__title">
+    Notifications
+  </h2>
+  <p class="notification-settings__subtitle">
+    Choose which alerts you want to receive. Preferences are saved to your account.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="notification-settings__form">
+    <label class="notification-settings__toggle">
+      <input type="checkbox" formControlName="email" />
+      <span>
+        <span class="notification-settings__label">Email notifications</span>
+        <span class="notification-settings__hint">Receive updates by email</span>
+      </span>
+    </label>
+
+    <label class="notification-settings__toggle">
+      <input type="checkbox" formControlName="inApp" />
+      <span>
+        <span class="notification-settings__label">In-app notifications</span>
+        <span class="notification-settings__hint">Show toasts and in-app alerts</span>
+      </span>
+    </label>
+
+    <label class="notification-settings__toggle">
+      <input type="checkbox" formControlName="attendanceAlerts" />
+      <span>
+        <span class="notification-settings__label">Attendance alerts</span>
+        <span class="notification-settings__hint">Late check-in and absence reminders</span>
+      </span>
+    </label>
+
+    <div class="notification-settings__actions">
+      <button
+        type="submit"
+        class="notification-settings__btn"
+        [disabled]="saving()"
+      >
+        {{ saving() ? 'Saving…' : 'Save preferences' }}
+      </button>
+    </div>
+  </form>
+</section>

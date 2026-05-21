@@ -1,0 +1,33 @@
+<section class="theme-settings" aria-labelledby="theme-settings-heading">
+  <h2 id="theme-settings-heading" class="theme-settings__title">Appearance</h2>
+  <p class="theme-settings__subtitle">
+    Choose light or dark theme. Your choice is saved for this browser and your account.
+  </p>
+
+  <div class="theme-settings__options" role="radiogroup" aria-label="Theme">
+    <button
+      type="button"
+      class="theme-settings__option"
+      [class.theme-settings__option--active]="theme() === 'light'"
+      role="radio"
+      [attr.aria-checked]="theme() === 'light'"
+      [disabled]="saving()"
+      (click)="setTheme('light')"
+    >
+      <span class="theme-settings__icon" aria-hidden="true">☀</span>
+      Light
+    </button>
+    <button
+      type="button"
+      class="theme-settings__option"
+      [class.theme-settings__option--active]="theme() === 'dark'"
+      role="radio"
+      [attr.aria-checked]="theme() === 'dark'"
+      [disabled]="saving()"
+      (click)="setTheme('dark')"
+    >
+      <span class="theme-settings__icon" aria-hidden="true">☾</span>
+      Dark
+    </button>
+  </div>
+</section>

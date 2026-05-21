@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.settings-page {
+  padding: 1.5rem;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.settings-page__header {
+  margin-bottom: 1.25rem;
+}
+
+.settings-page__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.settings-page__subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.settings-page__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (max-width: 40rem) {
+  .settings-page {
+    padding: 1rem;
+  }
+}

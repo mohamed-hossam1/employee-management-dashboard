@@ -1,0 +1,29 @@
+<section class="account-settings" aria-labelledby="account-settings-heading">
+  <h2 id="account-settings-heading" class="account-settings__title">Account</h2>
+  <p class="account-settings__subtitle">
+    Export a copy of your personal data or permanently delete your account.
+  </p>
+
+  <div class="account-settings__actions">
+    <button type="button" class="account-settings__btn" (click)="exportData()">
+      Export my data
+    </button>
+    <button
+      type="button"
+      class="account-settings__btn account-settings__btn--danger"
+      (click)="openDelete()"
+    >
+      Delete account
+    </button>
+  </div>
+
+  <app-confirm-dialog
+    [open]="deleteOpen()"
+    title="Delete account"
+    message="This permanently removes your account and signs you out. This action cannot be undone."
+    confirmText="Delete account"
+    cancelText="Cancel"
+    (confirmed)="confirmDelete()"
+    (cancelled)="closeDelete()"
+  />
+</section>
