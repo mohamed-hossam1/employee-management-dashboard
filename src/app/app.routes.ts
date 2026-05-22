@@ -78,7 +78,8 @@ export const routes: Routes = [
   },
   {
     path: 'unauthorized',
-    loadComponent: () => import('./pages/unauthorized').then((m) => m.UnauthorizedPage)
+    loadComponent: () =>
+      import('./pages/unauthorized/unauthorized').then((m) => m.UnauthorizedPage)
   },
   {
     path: 'components',
@@ -90,5 +91,11 @@ export const routes: Routes = [
     path: '',
     redirectTo: 'projects',
     pathMatch: 'full'
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./pages/not-found/not-found').then((m) => m.NotFoundPage)
   }
 ];
+

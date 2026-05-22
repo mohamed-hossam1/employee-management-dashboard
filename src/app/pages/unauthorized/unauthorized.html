@@ -1,0 +1,17 @@
+<main class="error-page" role="main" aria-labelledby="unauthorized-heading">
+  <div class="error-page__card">
+    <div class="error-page__illustration" aria-hidden="true">
+      <span class="error-page__code">403</span>
+      <span class="error-page__glyph">🔒</span>
+    </div>
+    <h1 id="unauthorized-heading" class="error-page__title">Unauthorized</h1>
+    <p class="error-page__message">
+      You do not have permission to access this resource. Sign in with an account that has access,
+      or return to a page you can use.
+    </p>
+    <div class="error-page__actions">
+      <a routerLink="/auth/login" class="error-page__btn error-page__btn--primary">Go to Login</a>
+      <a routerLink="/projects" class="error-page__btn">Projects</a>
+    </div>
+  </div>
+</main>
