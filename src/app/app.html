@@ -1,2 +1,18 @@
-<router-outlet />
-<app-toast-host />
+<div class="app-shell">
+  <div class="app-shell__content">
+    <router-outlet />
+  </div>
+
+  @if (navLoading()) {
+    <div
+      class="app-shell__nav-loading"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading page"
+    >
+      <app-loader variant="overlay" />
+    </div>
+  }
+
+  <app-toast-host />
+</div>

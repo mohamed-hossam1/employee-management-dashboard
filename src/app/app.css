@@ -1,0 +1,27 @@
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+}
+
+.app-shell__content {
+  min-height: 100vh;
+}
+
+.app-shell__nav-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  pointer-events: none;
+}
+
+.app-shell__nav-loading :is(.loader--overlay) {
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell__content,
+  .app-shell__nav-loading {
+    animation: none !important;
+    transition: none !important;
+  }
+}
