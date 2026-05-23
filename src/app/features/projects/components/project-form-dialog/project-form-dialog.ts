@@ -10,6 +10,7 @@ import {
   PROJECT_DESCRIPTION_MAX
 } from '../../../../core/models/project.model';
 import { ProjectInput } from '../../../../core/services/project.service';
+import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-project-form-dialog',
@@ -60,7 +61,7 @@ export class ProjectFormDialogComponent {
 
   protected onSubmit(): void {
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
+      scrollToFirstInvalid(this.form);
       return;
     }
     const { name, description, color, icon } = this.form.getRawValue();

@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthService, AuthError } from '../../../../core/services/auth.service';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field';
+import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-login',
@@ -28,7 +29,7 @@ export class LoginPage {
     this.formError.set(null);
 
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
+      scrollToFirstInvalid(this.form);
       return;
     }
 
@@ -41,6 +42,8 @@ export class LoginPage {
     } catch (error) {
       if (error instanceof AuthError && error.code === 'INVALID_CREDENTIALS') {
         this.formError.set('Invalid email or password.');
+      } else if (error instanceof AuthError) {
+        this.formError.set(error.message);
       } else {
         this.formError.set('Unable to sign in. Please try again.');
       }

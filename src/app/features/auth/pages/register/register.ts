@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthService, AuthError } from '../../../../core/services/auth.service';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field';
+import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-register',
@@ -33,7 +34,7 @@ export class RegisterPage {
     this.formError.set(null);
 
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
+      scrollToFirstInvalid(this.form);
       return;
     }
 
@@ -41,6 +42,7 @@ export class RegisterPage {
     if (password !== confirmPassword) {
       this.form.controls.confirmPassword.setErrors({ mismatch: true });
       this.form.controls.confirmPassword.markAsTouched();
+      scrollToFirstInvalid(this.form);
       return;
     }
 
@@ -52,6 +54,8 @@ export class RegisterPage {
       if (error instanceof AuthError && error.code === 'EMAIL_TAKEN') {
         this.form.controls.email.setErrors({ emailTaken: true });
         this.form.controls.email.markAsTouched();
+      } else if (error instanceof AuthError) {
+        this.formError.set(error.message);
       } else {
         this.formError.set('Unable to create account. Please try again.');
       }

@@ -13,6 +13,7 @@ import { FormFieldComponent } from '../../../../shared/components/form-field/for
 import { AvatarComponent } from '../../../../shared/components/avatar/avatar';
 import { ProfileService } from '../../services/profile.service';
 import { readFileAsDataUrl } from '../../services/avatar.util';
+import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
 const PHONE_PATTERN = /^[+]?[\d\s().-]{7,20}$/;
 
@@ -105,8 +106,8 @@ export class ProfilePage {
 
   async saveProfile(): Promise<void> {
     this.profileError.set(null);
-    this.profileForm.markAllAsTouched();
     if (this.profileForm.invalid) {
+      scrollToFirstInvalid(this.profileForm);
       return;
     }
     this.savingProfile.set(true);
@@ -126,18 +127,14 @@ export class ProfilePage {
 
   async savePassword(): Promise<void> {
     this.passwordError.set(null);
-    this.passwordForm.markAllAsTouched();
     if (this.passwordForm.invalid) {
+      scrollToFirstInvalid(this.passwordForm);
       return;
     }
     const { currentPassword, newPassword, confirmPassword } =
       this.passwordForm.getRawValue();
     if (newPassword !== confirmPassword) {
       this.passwordError.set('New password and confirmation do not match.');
-      return;
-    }
-    if (!this.profile.verifyCurrentPassword(currentPassword)) {
-      this.passwordError.set('Current password is incorrect.');
       return;
     }
 

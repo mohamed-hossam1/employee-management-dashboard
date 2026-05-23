@@ -21,6 +21,7 @@ import {
 } from '../../models/employee.model';
 import { EmployeeService } from '../../services/employee.service';
 import { DepartmentOption } from '../../components/employee-filters/employee-filters';
+import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
 const PHONE_PATTERN = /^[+]?[\d\s().-]{7,20}$/;
 const MAX_AVATAR_BYTES = 500_000;
@@ -234,8 +235,8 @@ export class EmployeeFormPage {
 
   async onSubmit(): Promise<void> {
     this.formError.set(null);
-    this.form.markAllAsTouched();
     if (this.form.invalid) {
+      scrollToFirstInvalid(this.form);
       return;
     }
 

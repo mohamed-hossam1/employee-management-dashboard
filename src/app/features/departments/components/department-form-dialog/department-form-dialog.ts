@@ -16,6 +16,7 @@ import {
   DepartmentCreateInput,
   ManagerOption
 } from '../../models/department.model';
+import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
 function uniqueNameValidator(existingNames: () => string[], currentName: () => string | null): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -80,8 +81,8 @@ export class DepartmentFormDialogComponent {
   }
 
   protected onSubmit(): void {
-    this.form.markAllAsTouched();
     if (this.form.invalid) {
+      scrollToFirstInvalid(this.form);
       return;
     }
     const raw = this.form.getRawValue();
