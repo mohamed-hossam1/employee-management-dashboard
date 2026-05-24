@@ -63,6 +63,10 @@ import { slideIn } from '../../animations/shared.animations';
         border-color: var(--color-warning);
         color: var(--color-warning);
       }
+      .toast--info {
+        border-color: var(--color-info);
+        color: var(--color-info);
+      }
       .toast__message {
         font-size: 0.875rem;
       }
