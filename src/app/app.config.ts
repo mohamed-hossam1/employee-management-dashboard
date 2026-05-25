@@ -2,17 +2,13 @@ import {
   ApplicationConfig,
   ErrorHandler,
   provideBrowserGlobalErrorListeners,
-  importProvidersFrom,
   APP_INITIALIZER
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
 
 import { routes } from './app.routes';
-import { InMemoryDataService } from './core/data/in-memory-data.service';
-import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { GlobalErrorHandler } from './core/error-handler';
 import { AuthService } from './core/services/auth.service';
@@ -24,22 +20,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideAnimations(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
+    provideHttpClient(withInterceptors([errorInterceptor])),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
-    importProvidersFrom(
-      HttpClientInMemoryWebApiModule.forRoot(InMemoryDataService, {
-        dataEncapsulation: false,
-        delay: 300,
-        passThruUnknownUrl: true,
-        apiBase: 'api'
-      })
-    ),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (authService: AuthService) => () => authService.autoLogin(),
-      deps: [AuthService],
-      multi: true
-    },
     {
       provide: APP_INITIALIZER,
       useFactory: (themeService: ThemeService) => () => themeService.init(),

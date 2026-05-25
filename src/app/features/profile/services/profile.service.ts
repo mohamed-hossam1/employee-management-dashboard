@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
+import { AuthService } from '../../../core/services/auth.service';
 import { ApiService } from '../../../core/services/api.service';
 import { AuthState } from '../../../core/state/auth.state';
 import { CsvService } from '../../../core/services/csv.service';
@@ -20,6 +21,7 @@ export interface ProfileUpdateInput {
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
   private readonly api = inject(ApiService);
+  private readonly authService = inject(AuthService);
   private readonly authState = inject(AuthState);
   private readonly csv = inject(CsvService);
 
@@ -28,29 +30,28 @@ export class ProfileService {
   }
 
   async reloadCurrentUser(): Promise<User | null> {
-    const current = this.authState.currentUser();
-    if (!current) {
-      return null;
-    }
-    const users = await firstValueFrom(this.api.get<User[]>('users', { id: current.id }));
-    const user = users[0] ?? null;
-    if (user) {
-      this.authState.setUser(user);
-    }
-    return user;
+    return this.authService.reloadCurrentUser();
   }
 
   async updateProfile(input: ProfileUpdateInput): Promise<User> {
     const user = this.requireUser();
-    await this.ensureEmailUnique(input.email, user.id);
-    const updated = await this.putUser({
+
+    if (input.email.trim().toLowerCase() !== user.email.trim().toLowerCase()) {
+      await this.authService.updateAuthEmail(input.email);
+    }
+
+    await this.putUser({
       ...user,
       name: input.name.trim(),
-      email: input.email.trim().toLowerCase(),
       phone: input.phone.trim(),
       bio: input.bio.trim()
     });
-    return updated;
+
+    const reloaded = await this.reloadCurrentUser();
+    if (!reloaded) {
+      throw new Error('Unable to reload your profile.');
+    }
+    return reloaded;
   }
 
   async updateAvatar(avatar: string | null): Promise<User> {
@@ -58,15 +59,8 @@ export class ProfileService {
     return this.putUser({ ...user, avatar });
   }
 
-  async changePassword(currentPassword: string, newPassword: string): Promise<User> {
-    const user = this.requireUser();
-    if (user.password !== currentPassword) {
-      throw new Error('Current password is incorrect.');
-    }
-    if (newPassword.length < 8) {
-      throw new Error('New password must be at least 8 characters.');
-    }
-    return this.putUser({ ...user, password: newPassword });
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await this.authService.changePassword(currentPassword, newPassword);
   }
 
   async updateSettings(settings: UserSettings): Promise<User> {
@@ -126,28 +120,13 @@ export class ProfileService {
   }
 
   async deleteAccount(): Promise<void> {
-    const user = this.requireUser();
-    await firstValueFrom(this.api.delete<void>(`users/${user.id}`));
-  }
-
-  verifyCurrentPassword(password: string): boolean {
-    const user = this.getCurrentUser();
-    return !!user && user.password === password;
+    await firstValueFrom(this.api.rpc('delete_my_account'));
   }
 
   private async putUser(user: User): Promise<User> {
-    const updated = await firstValueFrom(this.api.put<User>(`users/${user.id}`, user));
+    const updated = await firstValueFrom(this.api.put<User>(`profiles/${user.id}`, user));
     this.authState.setUser(updated);
     return updated;
-  }
-
-  private async ensureEmailUnique(email: string, excludeId: string): Promise<void> {
-    const matches = await firstValueFrom(
-      this.api.get<User[]>('users', { email: email.trim().toLowerCase() })
-    );
-    if (matches.some((u) => u.id !== excludeId)) {
-      throw new Error('An account with this email already exists.');
-    }
   }
 
   private requireUser(): User {

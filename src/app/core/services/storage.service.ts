@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 
-export type StorageKey = 'token' | 'theme' | 'activeProjectId';
+export type StorageKey = 'token' | 'theme' | 'activeProjectId' | 'session';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {

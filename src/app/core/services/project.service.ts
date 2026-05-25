@@ -68,27 +68,10 @@ export class ProjectService {
   }
 
   async delete(id: string): Promise<void> {
-    await this.cascadeDeleteOwnedData(id);
     await firstValueFrom(this.api.delete<void>(`projects/${id}`));
     this.state.setProjects(this.state.projects().filter((p) => p.id !== id));
     if (this.state.activeProjectId() === id) {
       this.state.setActiveProject(null);
-    }
-  }
-
-  private async cascadeDeleteOwnedData(projectId: string): Promise<void> {
-    const scopes = ['employees', 'departments', 'attendance', 'activity'] as const;
-    for (const scope of scopes) {
-      const records = await firstValueFrom(
-        this.api.get<Array<{ id: string; projectId: string }>>(scope, {
-          projectId
-        })
-      );
-      await Promise.all(
-        records
-          .filter((record) => record.projectId === projectId)
-          .map((record) => firstValueFrom(this.api.delete<void>(`${scope}/${record.id}`)))
-      );
     }
   }
 
