@@ -1,16 +1,21 @@
 # EmployeeManagementDashboard
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.6.
+Angular employee management dashboard backed by **Supabase** (Auth + Postgres REST API). There is no in-memory / mock API.
+
+## Backend
+
+- **Supabase Auth** — register, login, password change, sessions
+- **Supabase PostgREST** — `profiles`, `projects`, `employees`, `departments`, `attendance`, `activity`
+- Config: `src/app/environments/environment*.ts` (`supabaseUrl`, `supabasePublishableKey`)
+- SQL schema: `supabase/migrations/`
 
 ## Development server
-
-To start a local development server, run:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open `http://localhost:4200/`. All data requests go to your Supabase project.
 
 ## Code scaffolding
 

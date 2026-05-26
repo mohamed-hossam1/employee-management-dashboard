@@ -113,16 +113,13 @@ export class ApiService {
   }
 
   private headers(extra: Record<string, string> = {}): HttpHeaders {
-    let headers = new HttpHeaders({
+    const token = this.authState.token();
+    return new HttpHeaders({
       apikey: this.apiKey,
+      Authorization: `Bearer ${token ?? this.apiKey}`,
       'Content-Type': 'application/json',
       ...extra
     });
-    const token = this.authState.token();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    return headers;
   }
 
   private parsePath(path: string): { table: string; id: string | null } {

@@ -10,9 +10,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
   const notifications = inject(NotificationService);
+  const isAuthRequest = req.url.includes('/auth/v1/');
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      // Auth pages handle their own form-level errors; avoid noisy global toasts.
+      if (isAuthRequest) {
+        return throwError(() => error);
+      }
+
       if (error.status === 401) {
         authService.logout();
         notifications.error('Session expired. Please sign in again.');
@@ -29,9 +35,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else if (error.status >= 500) {
         notifications.error('A server error occurred. Please try again later.');
       } else if (error.status >= 400) {
+        const body = error.error;
         const message =
-          typeof error.error === 'object' && error.error && 'message' in error.error
-            ? String((error.error as { message: unknown }).message)
+          typeof body === 'object' && body !== null
+            ? String(
+                (body as { msg?: unknown; message?: unknown }).msg ??
+                  (body as { message?: unknown }).message ??
+                  'Request failed. Please review your input and try again.'
+              )
             : 'Request failed. Please review your input and try again.';
         notifications.error(message);
       }

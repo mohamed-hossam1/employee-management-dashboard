@@ -58,17 +58,37 @@ interface ProfileRecord {
   settings: UserSettings;
 }
 
+export type AuthErrorCode =
+  | 'INVALID_CREDENTIALS'
+  | 'EMAIL_TAKEN'
+  | 'EMAIL_CONFIRMATION_REQUIRED'
+  | 'INVALID_TOKEN'
+  | 'RATE_LIMITED'
+  | 'UNKNOWN';
+
 export class AuthError extends Error {
+  readonly code: AuthErrorCode;
+
   constructor(
     message: string,
-    readonly code:
-      | 'INVALID_CREDENTIALS'
-      | 'EMAIL_TAKEN'
-      | 'EMAIL_CONFIRMATION_REQUIRED'
-      | 'INVALID_TOKEN' = 'INVALID_CREDENTIALS'
+    code: AuthErrorCode = 'INVALID_CREDENTIALS'
   ) {
     super(message);
     this.name = 'AuthError';
+    this.code = code;
+    // Ensure `instanceof AuthError` works across bundlers / transpiled Error subclasses.
+    Object.setPrototypeOf(this, AuthError.prototype);
+  }
+
+  static is(error: unknown): error is AuthError {
+    return (
+      error instanceof AuthError ||
+      (typeof error === 'object' &&
+        error !== null &&
+        (error as { name?: string }).name === 'AuthError' &&
+        typeof (error as { message?: unknown }).message === 'string' &&
+        typeof (error as { code?: unknown }).code === 'string')
+    );
   }
 }
 
@@ -101,7 +121,7 @@ export class AuthService {
   async register(payload: RegisterPayload): Promise<AuthResult> {
     try {
       const response = await firstValueFrom(
-        this.http.post<Partial<SupabaseAuthResponse> & { user: SupabaseAuthUser }>(
+        this.http.post<Partial<SupabaseAuthResponse> & { user?: SupabaseAuthUser | null }>(
           `${this.authUrl}/signup`,
           {
             email: payload.email.trim().toLowerCase(),
@@ -112,16 +132,20 @@ export class AuthService {
         )
       );
 
+      // Email confirmation enabled: GoTrue returns the user without a session.
       if (!response.access_token || !response.refresh_token || !response.expires_in) {
         throw new AuthError(
-          'Account created. Confirm the email from Supabase before signing in.',
+          'Account created. Check your email to confirm your address, then sign in.',
           'EMAIL_CONFIRMATION_REQUIRED'
         );
       }
 
       return this.applySession(response as SupabaseAuthResponse, payload.name.trim());
     } catch (error) {
-      throw this.toAuthError(error, 'EMAIL_TAKEN');
+      if (AuthError.is(error) && error.code === 'EMAIL_CONFIRMATION_REQUIRED') {
+        throw error;
+      }
+      throw this.toAuthError(error, 'UNKNOWN');
     }
   }
 
@@ -270,41 +294,65 @@ export class AuthService {
   }
 
   private async syncProfile(authUser: SupabaseAuthUser, preferredName?: string): Promise<User> {
-    const profiles = await firstValueFrom(
-      this.api.get<ProfileRecord[]>('profiles', { id: authUser.id })
-    );
-    const existing = profiles[0] ?? null;
+    let existing: ProfileRecord | null = null;
+    try {
+      const profiles = await firstValueFrom(
+        this.api.get<ProfileRecord[] | ProfileRecord | null>('profiles', { id: authUser.id })
+      );
+      if (Array.isArray(profiles)) {
+        existing = profiles[0] ?? null;
+      } else if (profiles && typeof profiles === 'object') {
+        existing = profiles;
+      }
+    } catch {
+      existing = null;
+    }
+
     const now = new Date().toISOString();
-    const profile = await firstValueFrom(
-      this.api.upsert<ProfileRecord>('profiles', {
-        id: authUser.id,
-        email: authUser.email ?? existing?.email ?? '',
-        name:
-          preferredName ??
-          existing?.name ??
-          this.userMetadataName(authUser.user_metadata) ??
-          (authUser.email?.split('@')[0] ?? 'User'),
-        avatar: existing?.avatar ?? null,
-        phone: existing?.phone ?? '',
-        bio: existing?.bio ?? '',
-        role: existing?.role ?? 'user',
-        createdAt: existing?.createdAt ?? authUser.created_at ?? now,
-        lastLogin: authUser.last_sign_in_at ?? now,
-        settings: existing?.settings ?? this.defaultSettings()
-      })
-    );
+    const name =
+      preferredName ??
+      existing?.name ??
+      this.userMetadataName(authUser.user_metadata) ??
+      (authUser.email?.split('@')[0] ?? 'User');
+
+    const payload = {
+      id: authUser.id,
+      email: authUser.email ?? existing?.email ?? '',
+      name,
+      avatar: existing?.avatar ?? null,
+      phone: existing?.phone ?? '',
+      bio: existing?.bio ?? '',
+      role: existing?.role ?? 'user',
+      createdAt: existing?.createdAt ?? authUser.created_at ?? now,
+      lastLogin: authUser.last_sign_in_at ?? now,
+      settings: existing?.settings ?? this.defaultSettings()
+    };
+
+    let profile: ProfileRecord | null = null;
+    try {
+      profile = await firstValueFrom(this.api.upsert<ProfileRecord>('profiles', payload));
+    } catch {
+      // Trigger may have already created the row; fall back to a plain update or local profile.
+      try {
+        profile = await firstValueFrom(this.api.put<ProfileRecord>(`profiles/${authUser.id}`, payload));
+      } catch {
+        profile = existing ?? (payload as ProfileRecord);
+      }
+    }
+
+    const resolved = profile ?? (payload as ProfileRecord);
 
     return {
       id: authUser.id,
-      name: profile.name,
-      email: profile.email || authUser.email || '',
-      avatar: profile.avatar,
-      phone: profile.phone,
-      bio: profile.bio,
-      role: profile.role,
-      createdAt: profile.createdAt || authUser.created_at,
-      lastLogin: profile.lastLogin || authUser.last_sign_in_at || authUser.created_at,
-      settings: profile.settings ?? this.defaultSettings()
+      name: resolved.name || name,
+      email: resolved.email || authUser.email || '',
+      avatar: resolved.avatar ?? null,
+      phone: resolved.phone ?? '',
+      bio: resolved.bio ?? '',
+      role: resolved.role ?? 'user',
+      createdAt: resolved.createdAt || authUser.created_at,
+      lastLogin: resolved.lastLogin || authUser.last_sign_in_at || authUser.created_at,
+      settings: resolved.settings ?? this.defaultSettings()
     };
   }
 
@@ -349,21 +397,41 @@ export class AuthService {
     };
   }
 
-  private toAuthError(error: unknown, fallback: AuthError['code']): AuthError {
-    if (error instanceof AuthError) {
+  private toAuthError(error: unknown, fallback: AuthErrorCode): AuthError {
+    if (AuthError.is(error)) {
       return error;
     }
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : 'Authentication failed.';
+    const status =
+      typeof error === 'object' && error !== null && 'status' in error
+        ? Number((error as { status?: number }).status)
+        : undefined;
 
-    if (message.toLowerCase().includes('already registered')) {
+    const bodyMessage = this.extractHttpErrorMessage(error);
+    const message = (bodyMessage || (error instanceof Error ? error.message : '') || 'Authentication failed.').trim();
+    const lower = message.toLowerCase();
+
+    if (
+      status === HttpStatusCode.TooManyRequests ||
+      lower.includes('rate limit') ||
+      lower.includes('email rate limit') ||
+      lower.includes('only request this after')
+    ) {
+      return new AuthError(
+        'Too many attempts. Please wait a minute and try again.',
+        'RATE_LIMITED'
+      );
+    }
+
+    if (
+      lower.includes('already registered') ||
+      lower.includes('user already exists') ||
+      lower.includes('email address has already been registered')
+    ) {
       return new AuthError('An account with this email already exists.', 'EMAIL_TAKEN');
     }
 
-    if (message.toLowerCase().includes('email not confirmed')) {
+    if (lower.includes('email not confirmed') || lower.includes('email_not_confirmed')) {
       return new AuthError(
         'Confirm your email address before signing in.',
         'EMAIL_CONFIRMATION_REQUIRED'
@@ -371,14 +439,50 @@ export class AuthService {
     }
 
     if (
-      typeof error === 'object' &&
-      error !== null &&
-      'status' in error &&
-      (error as { status?: number }).status === HttpStatusCode.Unauthorized
+      lower.includes('email_address_invalid') ||
+      (lower.includes('email address') && lower.includes('invalid'))
     ) {
+      return new AuthError('Enter a valid email address.', 'UNKNOWN');
+    }
+
+    if (status === HttpStatusCode.Unauthorized || status === HttpStatusCode.BadRequest) {
+      if (fallback === 'INVALID_CREDENTIALS' || lower.includes('invalid login')) {
+        return new AuthError('Invalid email or password.', 'INVALID_CREDENTIALS');
+      }
+    }
+
+    if (status === HttpStatusCode.Unauthorized) {
       return new AuthError('Invalid email or password.', 'INVALID_CREDENTIALS');
     }
 
+    // Avoid surfacing raw Angular HttpClient messages to the UI.
+    if (lower.startsWith('http failure response')) {
+      return new AuthError('Unable to complete authentication. Please try again.', fallback);
+    }
+
     return new AuthError(message, fallback);
+  }
+
+  private extractHttpErrorMessage(error: unknown): string | null {
+    if (typeof error !== 'object' || error === null || !('error' in error)) {
+      return null;
+    }
+
+    const body = (error as { error?: unknown }).error;
+    if (typeof body === 'string' && body.trim()) {
+      return body;
+    }
+    if (typeof body !== 'object' || body === null) {
+      return null;
+    }
+
+    const record = body as Record<string, unknown>;
+    for (const key of ['msg', 'message', 'error_description', 'error']) {
+      const value = record[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value;
+      }
+    }
+    return null;
   }
 }

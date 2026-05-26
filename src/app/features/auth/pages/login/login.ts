@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService, AuthError } from '../../../../core/services/auth.service';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field';
@@ -12,18 +12,36 @@ import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly submitting = signal(false);
   protected readonly formError = signal<string | null>(null);
+  protected readonly infoMessage = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
+
+  ngOnInit(): void {
+    const params = this.route.snapshot.queryParamMap;
+    if (params.get('registered') === '1') {
+      this.infoMessage.set(
+        'Account created. Confirm your email (if required), then sign in.'
+      );
+    }
+    if (params.get('sessionExpired') === 'true') {
+      this.infoMessage.set('Session expired. Please sign in again.');
+    }
+    const email = params.get('email');
+    if (email) {
+      this.form.controls.email.setValue(email);
+    }
+  }
 
   async onSubmit(): Promise<void> {
     this.formError.set(null);
@@ -40,9 +58,11 @@ export class LoginPage {
       const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
       this.router.navigateByUrl(returnUrl ?? '/projects');
     } catch (error) {
-      if (error instanceof AuthError && error.code === 'INVALID_CREDENTIALS') {
+      if (AuthError.is(error) && error.code === 'INVALID_CREDENTIALS') {
         this.formError.set('Invalid email or password.');
-      } else if (error instanceof AuthError) {
+      } else if (AuthError.is(error)) {
+        this.formError.set(error.message);
+      } else if (error instanceof Error && error.message) {
         this.formError.set(error.message);
       } else {
         this.formError.set('Unable to sign in. Please try again.');

@@ -10,7 +10,6 @@ describe('AuthState', () => {
     id: 'u1',
     name: 'Test User',
     email: 'test@example.com',
-    password: 'Secret1',
     avatar: null,
     phone: '',
     bio: '',

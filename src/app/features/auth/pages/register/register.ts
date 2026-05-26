@@ -49,16 +49,30 @@ export class RegisterPage {
     this.submitting.set(true);
     try {
       await this.auth.register({ name, email, password });
-      this.router.navigate(['/projects']);
+      await this.router.navigate(['/projects']);
     } catch (error) {
-      if (error instanceof AuthError && error.code === 'EMAIL_TAKEN') {
+      console.error('[register]', error);
+
+      if (AuthError.is(error) && error.code === 'EMAIL_CONFIRMATION_REQUIRED') {
+        await this.router.navigate(['/auth/login'], {
+          queryParams: { registered: '1', email: email.trim().toLowerCase() }
+        });
+        return;
+      }
+
+      if (AuthError.is(error) && error.code === 'EMAIL_TAKEN') {
         this.form.controls.email.setErrors({ emailTaken: true });
         this.form.controls.email.markAsTouched();
-      } else if (error instanceof AuthError) {
         this.formError.set(error.message);
-      } else {
-        this.formError.set('Unable to create account. Please try again.');
+        return;
       }
+
+      const message =
+        (AuthError.is(error) && error.message) ||
+        (error instanceof Error && error.message) ||
+        (typeof error === 'string' ? error : null) ||
+        'Unable to create account. Please try again.';
+      this.formError.set(message);
     } finally {
       this.submitting.set(false);
     }

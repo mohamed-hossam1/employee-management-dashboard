@@ -2,16 +2,50 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { AuthService, AuthError } from './auth.service';
+import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
 import { AuthState } from '../state/auth.state';
 import { StorageService } from './storage.service';
-import { User } from '../models/user.model';
 
-describe('AuthService', () => {
+describe('AuthService (Supabase)', () => {
   let service: AuthService;
   let state: AuthState;
   let httpMock: HttpTestingController;
   let storage: StorageService;
+
+  const authBase = `${environment.supabaseUrl}/auth/v1`;
+  const restBase = `${environment.supabaseUrl}/rest/v1`;
+
+  const authUser = {
+    id: '11111111-1111-1111-1111-111111111111',
+    email: 'jane@demo.com',
+    created_at: '2026-01-01T00:00:00.000Z',
+    last_sign_in_at: '2026-01-01T00:00:00.000Z',
+    user_metadata: { name: 'Jane Doe' }
+  };
+
+  const sessionBody = {
+    access_token: 'access-token',
+    refresh_token: 'refresh-token',
+    expires_in: 3600,
+    user: authUser
+  };
+
+  const profileRow = {
+    id: authUser.id,
+    email: authUser.email,
+    name: 'Jane Doe',
+    avatar: null,
+    phone: '',
+    bio: '',
+    role: 'user',
+    created_at: authUser.created_at,
+    last_login: authUser.last_sign_in_at,
+    settings: {
+      theme: 'light',
+      notifications: { email: true, in_app: true, attendance_alerts: true }
+    }
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -21,120 +55,181 @@ describe('AuthService', () => {
     state = TestBed.inject(AuthState);
     httpMock = TestBed.inject(HttpTestingController);
     storage = TestBed.inject(StorageService);
+    storage.remove('session');
+    storage.remove('token');
+    state.reset();
   });
 
   afterEach(() => {
+    storage.remove('session');
     storage.remove('token');
     state.reset();
     try {
       httpMock.verify();
     } catch {
-      /* allow teardown even if a request was left open */
+      /* ignore leftover requests from failed assertions */
     }
-    TestBed.resetTestingModule();
   });
 
-  it('logs in with valid credentials and sets the session', async () => {
-    const promise = service.login({ email: 'admin@demo.com', password: 'password123' });
-
-    const req = httpMock.expectOne((r) => r.url.includes('users') && r.params.get('email') === 'admin@demo.com');
-    expect(req.request.method).toBe('GET');
-    req.flush([{ id: 'u1', email: 'admin@demo.com', password: 'password123' }] as unknown as User[]);
-
+  async function flushMicrotasks(): Promise<void> {
     await Promise.resolve();
     await Promise.resolve();
+  }
 
-    const putReq = httpMock.expectOne((r) => r.method === 'PUT');
-    putReq.flush({ id: 'u1' } as unknown as User);
+  async function flushProfileSync(): Promise<void> {
+    const getReq = httpMock.expectOne(
+      (r) => r.url.startsWith(`${restBase}/profiles`) && r.method === 'GET'
+    );
+    getReq.flush([]);
+
+    await flushMicrotasks();
+
+    const upsertReq = httpMock.expectOne(
+      (r) => r.url.startsWith(`${restBase}/profiles`) && r.method === 'POST'
+    );
+    upsertReq.flush([profileRow]);
+  }
+
+  it('logs in against Supabase password grant and sets the session', async () => {
+    const promise = service.login({ email: 'jane@demo.com', password: 'Password123' });
+
+    await flushMicrotasks();
+    const loginReq = httpMock.expectOne(`${authBase}/token?grant_type=password`);
+    expect(loginReq.request.method).toBe('POST');
+    loginReq.flush(sessionBody);
+
+    await flushMicrotasks();
+    await flushProfileSync();
 
     const result = await promise;
-    expect(result.user.id).toBe('u1');
-    expect(result.token).toBeTruthy();
+    expect(result.user.id).toBe(authUser.id);
+    expect(result.token).toBe('access-token');
     expect(state.isAuthenticated()).toBe(true);
+    expect(storage.get('session')).toBeTruthy();
   });
 
-  it('rejects invalid credentials', async () => {
-    const promise = service.login({ email: 'admin@demo.com', password: 'wrong' });
+  it('rejects invalid credentials from Supabase', async () => {
+    const promise = service.login({ email: 'jane@demo.com', password: 'wrong' });
 
-    const req = httpMock.expectOne((r) => r.url.includes('users') && r.params.get('email') === 'admin@demo.com');
-    req.flush([{ id: 'u1', email: 'admin@demo.com', password: 'password123' }] as unknown as User[]);
+    await flushMicrotasks();
+    const loginReq = httpMock.expectOne(`${authBase}/token?grant_type=password`);
+    loginReq.flush(
+      { error: 'invalid_grant', msg: 'Invalid login credentials' },
+      { status: 400, statusText: 'Bad Request' }
+    );
 
-    let thrown: unknown;
     try {
       await promise;
-    } catch (e) {
-      thrown = e;
+      throw new Error('expected login to reject');
+    } catch (error) {
+      expect(error).toMatchObject({ name: 'AuthError', code: 'INVALID_CREDENTIALS' });
     }
-    expect(thrown).toBeInstanceOf(AuthError);
-    expect((thrown as AuthError).code).toBe('INVALID_CREDENTIALS');
     expect(state.isAuthenticated()).toBe(false);
   });
 
-  it('registers a new account and auto signs in', async () => {
-    const lookup = service.register({ name: 'Jane Doe', email: 'jane@demo.com', password: 'Secret1' });
+  it('registers via Supabase signup and auto signs in', async () => {
+    const promise = service.register({
+      name: 'Jane Doe',
+      email: 'jane@demo.com',
+      password: 'Password123'
+    });
 
-    const findReq = httpMock.expectOne((r) => r.url.includes('users') && r.params.get('email') === 'jane@demo.com');
-    findReq.flush([] as unknown as User[]);
+    await flushMicrotasks();
+    const signupReq = httpMock.expectOne(`${authBase}/signup`);
+    expect(signupReq.request.body).toEqual({
+      email: 'jane@demo.com',
+      password: 'Password123',
+      data: { name: 'Jane Doe' }
+    });
+    signupReq.flush(sessionBody);
 
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushMicrotasks();
+    await flushProfileSync();
 
-    const postReq = httpMock.expectOne((r) => r.url.includes('users') && r.method === 'POST');
-    expect((postReq.request.body as { name: string }).name).toBe('Jane Doe');
-    postReq.flush({ id: 'u2', email: 'jane@demo.com' } as unknown as User);
-
-    const result = await lookup;
-    expect(result.user.id).toBe('u2');
+    const result = await promise;
+    expect(result.user.id).toBe(authUser.id);
     expect(state.isAuthenticated()).toBe(true);
   });
 
-  it('rejects registration for a taken email', async () => {
-    const promise = service.register({ name: 'Jane', email: 'admin@demo.com', password: 'Secret1' });
+  it('signals email confirmation when signup returns no session', async () => {
+    const promise = service.register({
+      name: 'Jane Doe',
+      email: 'jane@demo.com',
+      password: 'Password123'
+    });
 
-    const findReq = httpMock.expectOne((r) => r.url.includes('users') && r.params.get('email') === 'admin@demo.com');
-    findReq.flush([{ id: 'u1', email: 'admin@demo.com' }] as unknown as User[]);
+    await flushMicrotasks();
+    const signupReq = httpMock.expectOne(`${authBase}/signup`);
+    signupReq.flush({ user: authUser });
 
-    let thrown: unknown;
     try {
       await promise;
-    } catch (e) {
-      thrown = e;
+      throw new Error('expected register to reject');
+    } catch (error) {
+      expect(error).toMatchObject({ code: 'EMAIL_CONFIRMATION_REQUIRED' });
     }
-    expect(thrown).toBeInstanceOf(AuthError);
-    expect((thrown as AuthError).code).toBe('EMAIL_TAKEN');
+    expect(state.isAuthenticated()).toBe(false);
   });
 
-  it('mints a token that decodes back to the user id', () => {
-    const token = (service as unknown as { mintToken: (id: string) => string }).mintToken('u9');
-    expect(atob(token).startsWith('u9.')).toBe(true);
-  });
-
-  it('autoLogin restores session for a valid stored token', async () => {
-    const token = (service as unknown as { mintToken: (id: string) => string }).mintToken('u1');
-    storage.set('token', token);
+  it('autoLogin restores a valid stored Supabase session', async () => {
+    storage.set('session', {
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      // Must be > 60s ahead so ensureValidSession skips refresh.
+      expiresAt: Date.now() + 3_600_000
+    });
 
     const promise = service.autoLogin();
-    const req = httpMock.expectOne((r) => r.url.includes('users') && r.params.get('id') === 'u1');
-    req.flush([{ id: 'u1', email: 'admin@demo.com' }] as unknown as User[]);
 
-    const ok = await promise;
-    expect(ok).toBe(true);
+    await flushMicrotasks();
+    const userReq = httpMock.expectOne(`${authBase}/user`);
+    expect(userReq.request.headers.get('Authorization')).toBe('Bearer access-token');
+    userReq.flush(authUser);
+
+    await flushMicrotasks();
+    await flushProfileSync();
+
+    await expect(promise).resolves.toBe(true);
     expect(state.isAuthenticated()).toBe(true);
   });
 
-  it('autoLogin fails for a corrupt token', async () => {
-    storage.set('token', 'not-a-valid-token');
-    const ok = await service.autoLogin();
-    expect(ok).toBe(false);
+  it('autoLogin fails when no session is stored', async () => {
+    await expect(service.autoLogin()).resolves.toBe(false);
     expect(state.isAuthenticated()).toBe(false);
   });
 
-  it('logout clears the token and state', () => {
-    const token = (service as unknown as { mintToken: (id: string) => string }).mintToken('u1');
-    storage.set('token', token);
-    state.setSession({ id: 'u1' } as unknown as User, token);
+  it('logout clears local session state', async () => {
+    state.setSession(
+      {
+        id: authUser.id,
+        name: 'Jane',
+        email: authUser.email,
+        avatar: null,
+        phone: '',
+        bio: '',
+        role: 'user',
+        createdAt: authUser.created_at,
+        lastLogin: authUser.last_sign_in_at!,
+        settings: {
+          theme: 'light',
+          notifications: { email: true, inApp: true, attendanceAlerts: true }
+        }
+      },
+      'access-token'
+    );
+    storage.set('session', {
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      expiresAt: Date.now() + 3_600_000
+    });
+
     service.logout();
+
+    await flushMicrotasks();
+    const logoutReq = httpMock.expectOne(`${authBase}/logout`);
+    logoutReq.flush({});
+
     expect(state.isAuthenticated()).toBe(false);
-    expect(storage.get('token')).toBeNull();
+    expect(storage.get('session')).toBeNull();
   });
 });

@@ -3,6 +3,9 @@
   <p class="login__subtitle">Sign in to continue to your dashboard.</p>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    @if (infoMessage()) {
+      <p class="login__form-info" role="status">{{ infoMessage() }}</p>
+    }
     @if (formError()) {
       <p class="login__form-error" role="alert">{{ formError() }}</p>
     }
