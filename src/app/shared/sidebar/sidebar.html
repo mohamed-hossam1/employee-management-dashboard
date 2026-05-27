@@ -5,8 +5,7 @@
   aria-label="Primary"
   [class.collapsed]="collapsed()"
   [class.drawer-open]="drawerOpen()"
-  [attr.aria-modal]="drawerOpen() ? 'true' : null"
-  [attr.aria-hidden]="drawerOpen() ? null : 'true'"
+  [attr.aria-modal]="isMobile() && drawerOpen() ? 'true' : null"
 >
   <div class="sidebar__header">
     <a class="sidebar__brand" routerLink="/projects" (click)="linkSelected.emit()">

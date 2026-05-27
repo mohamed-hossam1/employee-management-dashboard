@@ -1,6 +1,6 @@
 import { Component, input, output, inject } from '@angular/core';
 
-import { ThemeState } from '../../core/theme/theme.state';
+import { ThemeService } from '../../core/theme/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,7 +9,7 @@ import { ThemeState } from '../../core/theme/theme.state';
   styleUrl: './navbar.css'
 })
 export class NavbarComponent {
-  private readonly themeState = inject(ThemeState);
+  private readonly themeService = inject(ThemeService);
 
   readonly title = input('');
   readonly subtitle = input('');
@@ -21,9 +21,9 @@ export class NavbarComponent {
   readonly openSettings = output<void>();
   readonly logout = output<void>();
 
-  readonly isDark = this.themeState.isDark;
+  readonly isDark = this.themeService.isDark;
 
   protected toggleTheme(): void {
-    this.themeState.toggleTheme();
+    this.themeService.toggle();
   }
 }

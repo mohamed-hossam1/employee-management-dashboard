@@ -46,7 +46,8 @@ export class SidebarComponent {
       'building-2': '🏢',
       clock: '🕑',
       user: '👤',
-      settings: '⚙'
+      settings: '⚙',
+      briefcase: '💼'
     };
     return glyphs[icon] ?? '•';
   }

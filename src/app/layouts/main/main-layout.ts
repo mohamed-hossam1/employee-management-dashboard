@@ -29,8 +29,6 @@ export class MainLayout {
   private readonly projectService = inject(ProjectService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly sections = NAVIGATION_SECTIONS;
-
   readonly collapsed = this.themeState.collapsed;
   readonly drawerOpen = this.themeState.drawerOpen;
   readonly isMobile = this.themeState.isMobile;
@@ -48,16 +46,6 @@ export class MainLayout {
     { initialValue: this.router.url }
   );
 
-  readonly activeSection = computed<NavigationSection | null>(() => {
-    const url = this.currentUrl();
-    const matches = this.sections.filter((s) => url.startsWith(s.route.split('/:')[0]));
-    return matches.length ? matches[matches.length - 1] : null;
-  });
-
-  readonly activeSectionId = computed(() => this.activeSection()?.id ?? '');
-  readonly title = computed(() => this.activeSection()?.label ?? 'Dashboard');
-  readonly subtitle = computed(() => this.activeSection()?.label ?? '');
-
   readonly projectSlot = computed<ActiveProjectSlot>(() => {
     const active = this.projectState.activeProject();
     return { projectId: active?.id ?? null, name: active?.name ?? null, color: active?.color ?? null };
@@ -67,6 +55,64 @@ export class MainLayout {
 
   readonly projects = this.projectState.projects;
   readonly activeProjectId = this.projectState.activeProjectId;
+
+  /** Resolve `/p/:projectId/...` placeholders so sidebar links navigate correctly. */
+  readonly sections = computed<NavigationSection[]>(() => {
+    const projectId = this.activeProjectId();
+    return NAVIGATION_SECTIONS.map((section) => {
+      if (!section.route.includes(':projectId')) {
+        return section;
+      }
+      if (!projectId) {
+        return { ...section, route: '/projects' };
+      }
+      return { ...section, route: section.route.replace(':projectId', projectId) };
+    });
+  });
+
+  readonly activeSection = computed<NavigationSection | null>(() => {
+    const url = this.currentUrl().split('?')[0] ?? '';
+    const sections = this.sections();
+
+    // Prefer the longest concrete match so /p/{id}/employees wins over /p/{id}/dashboard patterns.
+    let best: NavigationSection | null = null;
+    for (const section of sections) {
+      if (url === section.route || url.startsWith(`${section.route}/`)) {
+        if (!best || section.route.length > best.route.length) {
+          best = section;
+        }
+      }
+    }
+
+    if (best) {
+      return best;
+    }
+
+    if (url.startsWith('/projects')) {
+      return { id: 'projects', label: 'Projects', icon: 'briefcase', route: '/projects' };
+    }
+    if (url.startsWith('/profile')) {
+      return sections.find((s) => s.id === 'profile') ?? null;
+    }
+    if (url.startsWith('/settings')) {
+      return sections.find((s) => s.id === 'settings') ?? null;
+    }
+    return null;
+  });
+
+  readonly activeSectionId = computed(() => this.activeSection()?.id ?? '');
+  readonly title = computed(() => this.activeSection()?.label ?? 'App');
+  readonly subtitle = computed(() => {
+    const active = this.projectState.activeProject();
+    const section = this.activeSection();
+    if (!section) {
+      return '';
+    }
+    if (section.id === 'profile' || section.id === 'settings' || section.id === 'projects') {
+      return section.label;
+    }
+    return active?.name ? `Workspace · ${active.name}` : section.label;
+  });
 
   async onSelectProject(id: string): Promise<void> {
     const user = this.authState.currentUser();

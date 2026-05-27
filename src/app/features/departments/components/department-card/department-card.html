@@ -3,23 +3,32 @@
   [attr.aria-labelledby]="'dept-' + department().id + '-name'"
 >
   <div class="dept-card__top">
-    <h3 [id]="'dept-' + department().id + '-name'" class="dept-card__name">
-      {{ department().name }}
-    </h3>
+    <div class="dept-card__identity">
+      <span class="dept-card__icon" aria-hidden="true">🏢</span>
+      <div class="dept-card__titles">
+        <h3 [id]="'dept-' + department().id + '-name'" class="dept-card__name">
+          {{ department().name }}
+        </h3>
+        @if (department().description) {
+          <p class="dept-card__description">{{ department().description }}</p>
+        }
+      </div>
+    </div>
     <app-badge
-      [text]="department().employeeCount + (department().employeeCount === 1 ? ' employee' : ' employees')"
+      [text]="
+        department().employeeCount +
+        (department().employeeCount === 1 ? ' employee' : ' employees')
+      "
       variant="info"
     />
   </div>
 
-  @if (department().description) {
-    <p class="dept-card__description">{{ department().description }}</p>
-  }
-
-  <p class="dept-card__manager">
-    <span class="dept-card__label">Manager</span>
-    <span>{{ managerName() }}</span>
-  </p>
+  <dl class="dept-card__meta">
+    <div class="dept-card__meta-item">
+      <dt class="dept-card__label">Manager</dt>
+      <dd class="dept-card__value">{{ managerName() || 'Unassigned' }}</dd>
+    </div>
+  </dl>
 
   <div class="dept-card__actions">
     <button

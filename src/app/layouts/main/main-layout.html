@@ -15,7 +15,7 @@
     #sidebarEl
     class="shell__sidebar"
     (keydown)="onDrawerKeydown($event)"
-    [sections]="sections"
+    [sections]="sections()"
     [collapsed]="collapsed()"
     [drawerOpen]="drawerOpen()"
     [isMobile]="isMobile()"
@@ -39,7 +39,6 @@
       [user]="user()"
       [isMobile]="isMobile()"
       (menuToggle)="openDrawer()"
-      (searchFocus)="onSearchFocus()"
       (openProfile)="onOpenProfile()"
       (openSettings)="onOpenSettings()"
       (logout)="onLogout()"

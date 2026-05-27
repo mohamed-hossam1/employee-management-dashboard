@@ -1,7 +1,15 @@
+:host {
+  display: block;
+  height: 100%;
+  min-width: 0;
+}
+
 .card {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  height: 100%;
+  min-width: 0;
   padding: 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border);

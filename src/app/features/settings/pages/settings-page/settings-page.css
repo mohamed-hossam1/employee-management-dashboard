@@ -4,8 +4,8 @@
 
 .settings-page {
   padding: 1.5rem;
-  max-width: 40rem;
-  margin: 0 auto;
+  max-width: none; width: 100%;
+  margin: 0;
 }
 
 .settings-page__header {

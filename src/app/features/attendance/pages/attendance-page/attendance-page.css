@@ -4,8 +4,8 @@
 
 .attendance-page {
   padding: 1.5rem;
-  max-width: 72rem;
-  margin: 0 auto;
+  max-width: none; width: 100%;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -83,10 +83,21 @@
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   background: var(--surface);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.attendance-page__history {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .attendance-page__search {
-  max-width: 28rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .attendance-page__skeleton {

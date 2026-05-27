@@ -4,8 +4,8 @@
 
 .dashboard-page {
   padding: 1.5rem;
-  max-width: 72rem;
-  margin: 0 auto;
+  max-width: none; width: 100%;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;

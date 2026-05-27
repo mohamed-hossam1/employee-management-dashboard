@@ -4,8 +4,8 @@
 
 .employee-form {
   padding: 1.5rem;
-  max-width: 48rem;
-  margin: 0 auto;
+  max-width: none; width: 100%;
+  margin: 0;
 }
 
 .employee-form__header {

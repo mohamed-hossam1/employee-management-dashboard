@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import {
@@ -31,19 +31,24 @@ export class ProjectFormDialogComponent {
   readonly icons = PROJECT_ICON_SET;
 
   protected readonly form = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(PROJECT_NAME_MIN), Validators.maxLength(PROJECT_NAME_MAX)]],
+    name: [
+      '',
+      [Validators.required, Validators.minLength(PROJECT_NAME_MIN), Validators.maxLength(PROJECT_NAME_MAX)]
+    ],
     description: ['', [Validators.maxLength(PROJECT_DESCRIPTION_MAX)]],
-    color: ['', [Validators.required]],
-    icon: ['', [Validators.required]]
+    color: [this.colors[0] as string, [Validators.required]],
+    icon: [this.icons[0] as string, [Validators.required]]
   });
 
   constructor() {
-    const initial = this.project();
-    this.form.setValue({
-      name: initial?.name ?? '',
-      description: initial?.description ?? '',
-      color: initial?.color ?? this.colors[0],
-      icon: initial?.icon ?? this.icons[0]
+    effect(() => {
+      const initial = this.project();
+      this.form.reset({
+        name: initial?.name ?? '',
+        description: initial?.description ?? '',
+        color: initial?.color || this.colors[0],
+        icon: initial?.icon || this.icons[0]
+      });
     });
   }
 
@@ -71,14 +76,17 @@ export class ProjectFormDialogComponent {
   protected nameError(): string | null {
     const c = this.form.controls.name;
     if (c.touched && c.hasError('required')) return 'Name is required.';
-    if (c.touched && c.hasError('minlength')) return `Name must be at least ${PROJECT_NAME_MIN} characters.`;
-    if (c.touched && c.hasError('maxlength')) return `Name must be ${PROJECT_NAME_MAX} characters or fewer.`;
+    if (c.touched && c.hasError('minlength'))
+      return `Name must be at least ${PROJECT_NAME_MIN} characters.`;
+    if (c.touched && c.hasError('maxlength'))
+      return `Name must be ${PROJECT_NAME_MAX} characters or fewer.`;
     return null;
   }
 
   protected descriptionError(): string | null {
     const c = this.form.controls.description;
-    if (c.touched && c.hasError('maxlength')) return `Description must be ${PROJECT_DESCRIPTION_MAX} characters or fewer.`;
+    if (c.touched && c.hasError('maxlength'))
+      return `Description must be ${PROJECT_DESCRIPTION_MAX} characters or fewer.`;
     return null;
   }
 }

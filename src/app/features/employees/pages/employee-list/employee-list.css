@@ -4,8 +4,8 @@
 
 .employee-list {
   padding: 1.5rem;
-  max-width: 72rem;
-  margin: 0 auto;
+  max-width: none; width: 100%;
+  margin: 0;
 }
 
 .employee-list__header {
@@ -81,6 +81,7 @@
 
 .employee-list__search {
   max-width: 28rem;
+  width: 100%;
 }
 
 .employee-list__skeleton {
