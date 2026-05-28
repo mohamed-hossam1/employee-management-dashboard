@@ -89,11 +89,6 @@
   overflow: hidden;
 }
 
-.attendance-page__history {
-  min-width: 0;
-  overflow: hidden;
-}
-
 .attendance-page__search {
   width: 100%;
   max-width: 100%;
@@ -127,6 +122,9 @@
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   background: var(--surface);
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .attendance-page__report-header,

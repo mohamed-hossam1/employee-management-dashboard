@@ -25,46 +25,73 @@
     </button>
   </div>
 
-  <div class="sidebar__project" [class.sidebar__project--empty]="!hasProject()">
+  <div
+    class="sidebar__project"
+    [class.sidebar__project--empty]="!hasProject()"
+    [class.sidebar__project--open]="projectSwitchOpen()"
+  >
     @if (hasProject()) {
       <button
         type="button"
         class="sidebar__project-trigger"
         [attr.aria-haspopup]="'menu'"
         [attr.aria-expanded]="projectSwitchOpen() ? 'true' : 'false'"
-        aria-label="Switch project"
+        [attr.aria-label]="'Switch project, current: ' + (projectSlot()?.name ?? '')"
+        [title]="collapsed() ? (projectSlot()?.name ?? 'Switch project') : null"
         (click)="toggleProjectSwitch.emit()"
       >
-        <span class="sidebar__project-swatch" [style.background-color]="projectSlot()?.color ?? 'var(--color-brand)'" aria-hidden="true"></span>
-        <span class="sidebar__project-name">{{ projectSlot()?.name }}</span>
-        <span class="sidebar__project-caret" aria-hidden="true">▾</span>
+        <span
+          class="sidebar__project-swatch"
+          [style.background-color]="projectSlot()?.color ?? 'var(--color-brand)'"
+          aria-hidden="true"
+        ></span>
+        @if (!collapsed()) {
+          <span class="sidebar__project-name">{{ projectSlot()?.name }}</span>
+          <span class="sidebar__project-caret" aria-hidden="true">▾</span>
+        }
       </button>
+
       @if (projectSwitchOpen()) {
-        <ul class="sidebar__switch" role="menu" aria-label="Your projects">
-          @for (project of projects(); track project.id) {
-            <li role="none">
-              <button
-                type="button"
-                role="menuitemradio"
-                class="sidebar__switch-item"
-                [class.sidebar__switch-item--active]="project.id === activeProjectId()"
-                [attr.aria-checked]="project.id === activeProjectId() ? 'true' : 'false'"
-                (click)="selectProject.emit(project.id)"
-              >
-                <span class="sidebar__project-swatch" [style.background-color]="project.color" aria-hidden="true"></span>
-                {{ project.name }}
-              </button>
-            </li>
-          }
-          <li role="none">
-            <button type="button" role="menuitem" class="sidebar__switch-item sidebar__switch-item--manage" (click)="manageProjects.emit()">
-              Manage projects
-            </button>
-          </li>
-        </ul>
+        <div class="sidebar__switch-panel" role="presentation">
+          <div class="sidebar__switch-heading">Workspaces</div>
+          <ul class="sidebar__switch" role="menu" aria-label="Your projects">
+            @for (project of projects(); track project.id) {
+              <li role="none">
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  class="sidebar__switch-item"
+                  [class.sidebar__switch-item--active]="project.id === activeProjectId()"
+                  [attr.aria-checked]="project.id === activeProjectId() ? 'true' : 'false'"
+                  (click)="selectProject.emit(project.id)"
+                >
+                  <span
+                    class="sidebar__project-swatch"
+                    [style.background-color]="project.color"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="sidebar__switch-item-label">{{ project.name }}</span>
+                  @if (project.id === activeProjectId()) {
+                    <span class="sidebar__switch-check" aria-hidden="true">✓</span>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+          <button
+            type="button"
+            role="menuitem"
+            class="sidebar__switch-manage"
+            (click)="manageProjects.emit()"
+          >
+            Manage projects
+          </button>
+        </div>
       }
     } @else {
-      <span class="sidebar__project-empty">No project selected</span>
+      @if (!collapsed()) {
+        <span class="sidebar__project-empty">No project selected</span>
+      }
     }
   </div>
 
@@ -89,7 +116,13 @@
   </ul>
 
   <div class="sidebar__footer">
-    <button type="button" class="sidebar__logout" (click)="logout.emit()">
+    <button
+      type="button"
+      class="sidebar__logout"
+      [attr.aria-label]="'Log out'"
+      [title]="collapsed() ? 'Log out' : null"
+      (click)="logout.emit()"
+    >
       <span class="sidebar__icon" aria-hidden="true">⏻</span>
       @if (!collapsed()) {
         <span class="sidebar__label">Log out</span>

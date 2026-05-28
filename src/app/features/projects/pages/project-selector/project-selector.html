@@ -2,10 +2,13 @@
   <header class="selector__header">
     <div>
       <h1 id="selector-heading" class="selector__title">Projects</h1>
-      <p class="selector__subtitle">Manage your workspaces and switch between them.</p>
+      <p class="selector__subtitle">
+        Choose a workspace to manage employees, departments, and attendance.
+      </p>
     </div>
     <button type="button" class="selector__create" (click)="openCreate()">
-      <span aria-hidden="true">＋</span> New project
+      <span aria-hidden="true">＋</span>
+      New project
     </button>
   </header>
 
@@ -14,7 +17,7 @@
   } @else if (isEmpty()) {
     <section class="empty" aria-labelledby="empty-heading">
       <h2 id="empty-heading" class="empty__title">No projects yet</h2>
-      <p class="empty__text">Create your first project to start organizing your data.</p>
+      <p class="empty__text">Create your first workspace to start organizing your team data.</p>
       <button type="button" class="selector__create" (click)="openCreate()">Create a project</button>
     </section>
   } @else {

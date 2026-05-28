@@ -10,7 +10,7 @@
   max-width: none;
   min-width: 0;
   margin: 0;
-  padding: 1.5rem;
+  padding: 1.5rem 1.75rem 2rem;
 }
 
 .selector__header {
@@ -20,32 +20,46 @@
   gap: 1rem;
   flex-wrap: wrap;
   width: 100%;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .selector__title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
 }
 
 .selector__subtitle {
-  margin: 0.25rem 0 0;
+  margin: 0.35rem 0 0;
   color: var(--muted);
+  font-size: 0.9375rem;
+  max-width: 36rem;
+  line-height: 1.45;
 }
 
 .selector__create {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  gap: 0.4rem;
+  padding: 0.625rem 1.1rem;
+  border-radius: 0.625rem;
   border: 1px solid transparent;
   background: var(--color-brand);
   color: #fff;
   font: inherit;
-  font-weight: 500;
+  font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+  white-space: nowrap;
+}
+
+.selector__create:hover {
+  filter: brightness(1.06);
 }
 
 .selector__create:focus-visible {
@@ -54,24 +68,33 @@
 }
 
 .selector__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
   color: var(--muted);
+  font-size: 0.9375rem;
 }
 
 .empty {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 3.5rem 1.5rem;
   border: 1px dashed var(--border);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   background: var(--surface);
 }
 
 .empty__title {
   margin: 0 0 0.5rem;
+  font-size: 1.25rem;
 }
 
 .empty__text {
   color: var(--muted);
-  margin: 0 0 1rem;
+  margin: 0 0 1.25rem;
+  max-width: 24rem;
+  margin-inline: auto  auto;
+  margin-bottom: 1.25rem;
 }
 
 .selector__grid {
@@ -80,26 +103,58 @@
   padding: 0;
   width: 100%;
   display: grid;
-  /* auto-fit collapses empty tracks so cards expand across the content width */
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-  gap: 1rem;
+  /* Fixed card width band so 5 projects look even on wide screens */
+  grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
 }
 
 .selector__grid > li {
   min-width: 0;
+  display: flex;
 }
 
-@media (max-width: 40rem) {
+.selector__grid > li > * {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+@media (min-width: 90rem) {
+  .selector__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
   .selector {
-    padding: 1rem;
+    padding: 1.25rem 1rem 1.5rem;
   }
 
   .selector__header {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
   }
 
   .selector__create {
     justify-content: center;
+    width: 100%;
+  }
+
+  .selector__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 48.01rem) and (max-width: 64rem) {
+  .selector__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64.01rem) and (max-width: 89.99rem) {
+  .selector__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

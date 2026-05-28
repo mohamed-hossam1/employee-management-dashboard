@@ -2,43 +2,53 @@
   class="card"
   [class.card--active]="active()"
   [style.--accent]="project().color"
-  aria-labelledby="project-{{ project().id }}-name"
+  [attr.aria-labelledby]="'project-' + project().id + '-name'"
 >
-  <div class="card__top">
-    <span class="card__icon" aria-hidden="true">{{ iconGlyph(project().icon) }}</span>
+  <header class="card__header">
+    <span class="card__icon-wrap" aria-hidden="true">
+      <span class="card__icon">{{ iconGlyph(project().icon) }}</span>
+    </span>
     @if (active()) {
       <span class="card__badge">Active</span>
+    } @else {
+      <span class="card__badge card__badge--idle">Workspace</span>
     }
+  </header>
+
+  <div class="card__body">
+    <h3 [id]="'project-' + project().id + '-name'" class="card__name">
+      {{ project().name }}
+    </h3>
+    <p class="card__description">
+      {{ project().description || 'No description yet.' }}
+    </p>
   </div>
 
-  <h3 id="project-{{ project().id }}-name" class="card__name">{{ project().name }}</h3>
-  @if (project().description) {
-    <p class="card__description">{{ project().description }}</p>
-  }
-
-  <div class="card__actions">
+  <footer class="card__footer">
     <button
       type="button"
-      class="card__action card__action--primary"
+      class="card__btn card__btn--primary"
       (click)="activate.emit()"
     >
-      {{ active() ? 'Open' : 'Switch to' }}
+      {{ active() ? 'Open workspace' : 'Switch to workspace' }}
     </button>
-    <button
-      type="button"
-      class="card__action"
-      aria-label="Edit {{ project().name }}"
-      (click)="edit.emit()"
-    >
-      Edit
-    </button>
-    <button
-      type="button"
-      class="card__action card__action--danger"
-      aria-label="Delete {{ project().name }}"
-      (click)="delete.emit()"
-    >
-      Delete
-    </button>
-  </div>
+    <div class="card__btn-row">
+      <button
+        type="button"
+        class="card__btn card__btn--ghost"
+        [attr.aria-label]="'Edit ' + project().name"
+        (click)="edit.emit()"
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        class="card__btn card__btn--danger"
+        [attr.aria-label]="'Delete ' + project().name"
+        (click)="delete.emit()"
+      >
+        Delete
+      </button>
+    </div>
+  </footer>
 </article>

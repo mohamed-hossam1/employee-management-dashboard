@@ -5,78 +5,175 @@
 }
 
 .card {
+  --accent: var(--color-brand);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
   height: 100%;
+  min-height: 17.5rem;
   min-width: 0;
   padding: 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--accent, var(--color-brand));
-  border-radius: 0.75rem;
-  box-shadow: var(--shadow-card);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.14);
+  transform: translateY(-1px);
 }
 
 .card--active {
-  outline: 2px solid var(--accent, var(--color-brand));
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 12px 28px rgb(0 0 0 / 0.16);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--accent) 10%, var(--surface)) 0%,
+    var(--surface) 42%
+  );
 }
 
-.card__top {
+.card__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.card__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--accent) 18%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  flex-shrink: 0;
 }
 
 .card__icon {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
 .card__badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--accent, var(--color-brand));
-  border: 1px solid var(--accent, var(--color-brand));
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--accent);
   border-radius: 999px;
-  padding: 0.125rem 0.5rem;
+  padding: 0.3rem 0.625rem;
+  line-height: 1.2;
+}
+
+.card__badge--idle {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 12%, var(--bg));
+  border: 1px solid var(--border);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.card__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
 .card__name {
   margin: 0;
   font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.3;
+  color: var(--fg);
+  word-break: break-word;
 }
 
 .card__description {
   margin: 0;
   color: var(--muted);
   font-size: 0.875rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 3.9em;
 }
 
-.card__actions {
+.card__footer {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  margin-top: 1.25rem;
 }
 
-.card__action {
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.5rem;
+.card__btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.card__btn {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.55rem;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--fg);
   font: inherit;
   font-size: 0.875rem;
+  font-weight: 550;
   cursor: pointer;
+  text-align: center;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    filter 0.12s ease;
 }
 
-.card__action--primary {
-  background: var(--accent, var(--color-brand));
-  color: #fff;
+.card__btn:hover {
+  filter: brightness(1.06);
+}
+
+.card__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card__btn--primary {
+  background: var(--accent);
   border-color: transparent;
+  color: #fff;
+  font-weight: 600;
 }
 
-.card__action--danger {
+.card__btn--ghost {
+  background: transparent;
+}
+
+.card__btn--danger {
   color: var(--color-danger);
-  border-color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 45%, var(--border));
+  background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+}
+
+.card__btn--danger:hover {
+  background: color-mix(in srgb, var(--color-danger) 16%, transparent);
 }
