@@ -39,6 +39,27 @@
     </button>
   </form>
 
+  <div class="login__demo">
+    <div class="login__demo-divider" aria-hidden="true">
+      <span>or</span>
+    </div>
+    <button
+      type="button"
+      class="login__demo-btn"
+      [disabled]="submitting()"
+      (click)="useDemoLogin()"
+    >
+      {{ submitting() ? 'Signing in…' : 'Continue with demo account' }}
+    </button>
+    <p class="login__demo-hint">
+      <span class="login__demo-label">Demo email</span>
+      <code>{{ demoEmail }}</code>
+      <span class="login__demo-sep">·</span>
+      <span class="login__demo-label">Password</span>
+      <code>same as email</code>
+    </p>
+  </div>
+
   <p class="login__footer">
     New here?
     <a routerLink="/auth/register">Create an account</a>

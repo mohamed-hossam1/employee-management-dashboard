@@ -6,6 +6,10 @@ import { AuthService, AuthError } from '../../../../core/services/auth.service';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field';
 import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
+/** Demo account used for one-click login (password matches email). */
+const DEMO_EMAIL = 'mohamedhossamv8@gmail.com';
+const DEMO_PASSWORD = 'mohamedhossamv8@gmail.com';
+
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule, RouterLink, FormFieldComponent],
@@ -21,6 +25,8 @@ export class LoginPage implements OnInit {
   protected readonly submitting = signal(false);
   protected readonly formError = signal<string | null>(null);
   protected readonly infoMessage = signal<string | null>(null);
+
+  protected readonly demoEmail = DEMO_EMAIL;
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -52,11 +58,26 @@ export class LoginPage implements OnInit {
     }
 
     const { email, password } = this.form.getRawValue();
+    await this.signIn(email, password);
+  }
+
+  /** Fill demo credentials and sign in immediately. */
+  async useDemoLogin(): Promise<void> {
+    this.form.setValue({
+      email: DEMO_EMAIL,
+      password: DEMO_PASSWORD
+    });
+    this.form.markAsPristine();
+    await this.signIn(DEMO_EMAIL, DEMO_PASSWORD);
+  }
+
+  private async signIn(email: string, password: string): Promise<void> {
+    this.formError.set(null);
     this.submitting.set(true);
     try {
       await this.auth.login({ email, password });
       const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
-      this.router.navigateByUrl(returnUrl ?? '/projects');
+      await this.router.navigateByUrl(returnUrl ?? '/projects');
     } catch (error) {
       if (AuthError.is(error) && error.code === 'INVALID_CREDENTIALS') {
         this.formError.set('Invalid email or password.');
