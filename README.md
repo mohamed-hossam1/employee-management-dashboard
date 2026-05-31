@@ -1,52 +1,108 @@
 # Employee Management Dashboard
 
-A multi-workspace **Employee Management System** built with **Angular 22** and **Supabase**.  
-Manage projects (workspaces), employees, departments, attendance, and personal settings from a modern dark/light UI.
+### A production-minded, multi-workspace HR platform — built end-to-end with Angular 22 & Supabase
 
-There is **no mock/in-memory API** — all auth and data go to Supabase (Auth + Postgres/PostgREST).
+> **Not a toy CRUD demo.** A full-stack product with real authentication, Postgres + Row Level Security, multi-tenant workspaces, charts, accessibility, and a component system designed like a design system — not a pile of one-off screens.
+
+[![Angular](https://img.shields.io/badge/Angular-22-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20Postgres-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Vitest](https://img.shields.io/badge/Tests-Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
+
+**[Live repo](https://github.com/mohamed-hossam1/employee-management-dashboard)** · **Demo login in 1 click** (see below)
 
 ---
 
-## Features
+## Why this project exists
 
-| Area | What you get |
-|------|----------------|
-| **Auth** | Register, login, session restore, logout, password change |
-| **Demo login** | One-click demo account on the login page |
-| **Projects** | Create / edit / delete workspaces; switch active project |
-| **Dashboard** | Stats, recent employees, activity, attendance charts |
-| **Employees** | CRUD, filters, detail view, CSV import/export tooling |
-| **Departments** | Cards, detail, manager assignment, employee counts |
-| **Attendance** | Check-in/out, history filters, monthly report, statistics |
+Recruiters and hiring managers see hundreds of “Todo apps” and Material table clones. This project answers a harder question:
+
+> *Can this engineer ship a coherent product — architecture, security, UX, and maintainability — not just a tutorial stack?*
+
+**Employee Management Dashboard** is a multi-project (workspace) system for managing people operations: employees, departments, attendance, analytics, and account settings. It was designed with:
+
+| Signal for hiring teams | How it shows up here |
+|-------------------------|----------------------|
+| **Product thinking** | Multi-workspace model, role-ready profiles, activity feed, empty states, skeletons |
+| **Modern Angular** | Standalone components, signals, lazy routes, functional guards & interceptors |
+| **Real backend** | Supabase Auth + Postgres REST — **no mock/in-memory API** |
+| **Security awareness** | RLS policies, anon key only in the client, owner-scoped data access |
+| **UI craft** | Custom Tailwind design system (no Material bloat), light/dark themes |
+| **Engineering process** | Spec-driven delivery (`specs/` phases 001–012), clear domain boundaries |
+| **Quality bar** | Accessibility (ARIA, focus), unit tests (Vitest), responsive shell |
+
+---
+
+## Preview
+
+![Employee Management Dashboard UI](./image.png)
+
+*Clean admin shell: project switcher, data tables, filters, pagination, and status badges — built for real HR workflows.*
+
+---
+
+## Try it in under 2 minutes
+
+```bash
+git clone https://github.com/mohamed-hossam1/employee-management-dashboard.git
+cd employee-management-dashboard
+npm install
+npm start
+```
+
+Open **[http://localhost:4200](http://localhost:4200)** → click **Continue with demo account**.
+
+| | Credentials |
+|---|-------------|
+| **Email** | `mohamedhossamv8@gmail.com` |
+| **Password** | same as email |
+
+The demo account is pre-seeded with projects, departments, employees, and attendance so reviewers can explore the full product without setup friction.
+
+> Prefer your own Supabase project? See [Configuration](#configuration) below.
+
+---
+
+## Product features
+
+| Module | What users can do |
+|--------|-------------------|
+| **Auth** | Register, login, session restore, logout, password change — plus one-click demo login |
+| **Workspaces** | Create, edit, delete, and switch **projects** (multi-tenant style scoping) |
+| **Dashboard** | KPI stats, recent hires, activity feed, attendance charts (Chart.js) |
+| **Employees** | Full CRUD, filters, detail views, CSV tooling for import/export workflows |
+| **Departments** | Card grid, detail pages, manager assignment, headcount context |
+| **Attendance** | Check-in / check-out, history filters, monthly report, statistics |
 | **Profile** | Name, email, phone, bio, avatar, password |
-| **Settings** | Theme (light/dark), notification preferences, account export/delete |
-| **UX** | Responsive shell, sidebar project switcher, toasts, skeletons, empty states |
+| **Settings** | Light/dark theme, notification preferences, account export / delete |
+| **Shell UX** | Responsive layout, sidebar project switcher, toasts, skeletons, empty states, 404 & unauthorized pages |
 
 ---
 
-## Tech stack
+## Tech stack at a glance
 
-| Layer | Technology |
-|-------|------------|
-| Framework | [Angular](https://angular.dev) 22 (standalone components, signals) |
-| Language | TypeScript 6 |
-| Styling | Tailwind CSS v4 + CSS custom properties (theme tokens) |
-| Charts | Chart.js + ng2-charts |
-| Backend | [Supabase](https://supabase.com) Auth + Postgres REST (`/rest/v1`) |
-| State | Angular signals (`AuthState`, `ProjectState`, feature states) |
-| HTTP | `HttpClient` + auth/error interceptors |
-| Tests | Vitest via Angular unit-test builder |
-| Package manager | npm 11 |
+| Layer | Choice | Why it matters |
+|-------|--------|----------------|
+| **Frontend** | Angular 22 | Latest standalone + signals model — not legacy NgModules |
+| **Language** | TypeScript (strict) | Type-safe domain models end-to-end |
+| **Styling** | Tailwind CSS v4 + design tokens | Full visual control, lean CSS, light/dark themes |
+| **Charts** | Chart.js + ng2-charts | Dashboard & attendance analytics |
+| **Backend** | Supabase (Auth + Postgres + PostgREST) | Production-grade BaaS with real security model |
+| **State** | Angular signals | Predictable, fine-grained UI updates |
+| **HTTP** | `HttpClient` + auth/error interceptors | Clean cross-cutting concerns |
+| **Tests** | Vitest | Fast unit coverage on auth & core state |
+| **Tooling** | npm 11, Prettier, Angular CLI | Modern, reproducible developer experience |
 
 ---
 
-## Architecture
+## Architecture that scales
 
 ```
 src/app/
-├── core/                 # Auth, API, guards, interceptors, models, theme, global state
-├── environments/         # Supabase URL + publishable key
-├── features/             # Lazy-loaded feature areas
+├── core/           # Auth, API, guards, interceptors, models, theme, global state
+├── environments/   # Supabase URL + publishable key
+├── features/       # Lazy-loaded product areas
 │   ├── auth/
 │   ├── projects/
 │   ├── dashboard/
@@ -55,58 +111,86 @@ src/app/
 │   ├── attendance/
 │   ├── profile/
 │   └── settings/
-├── layouts/              # Auth layout + main app shell (sidebar + navbar)
-├── pages/                # 404, unauthorized, components gallery
-└── shared/               # Reusable UI (table, pagination, filters, toasts, …)
+├── layouts/        # Auth shell + main app shell (sidebar + navbar)
+├── pages/          # 404, unauthorized, component gallery
+└── shared/         # Design-system primitives (table, toast, skeleton, …)
 
-supabase/migrations/      # Postgres schema, RLS, triggers
+supabase/migrations/   # Schema, RLS, triggers, account RPC
 ```
 
-### Data flow
+### How data flows
 
-1. **Auth** → Supabase GoTrue (`/auth/v1`) for signup, login, refresh, logout.
-2. **API** → `ApiService` maps camelCase ↔ snake_case and calls PostgREST tables under `/rest/v1`.
-3. **Guards** → `authGuard` protects app routes; `projectGuard` ensures a valid project scope.
-4. **RLS** → Row Level Security: users only access rows for projects they own.
+1. **Auth** → Supabase GoTrue (`/auth/v1`) for signup, login, refresh, logout  
+2. **API** → `ApiService` maps camelCase ↔ snake_case and talks to PostgREST (`/rest/v1`)  
+3. **Guards** → `authGuard` protects the app; `projectGuard` enforces workspace scope  
+4. **RLS** → Users only see rows for projects they own  
 
-### Main routes
+### Route map
 
-| Path | Description |
-|------|-------------|
-| `/auth/login`, `/auth/register` | Public auth |
+| Path | Purpose |
+|------|---------|
+| `/auth/login`, `/auth/register` | Public authentication |
 | `/projects` | Workspace selector |
 | `/p/:projectId/dashboard` | Project dashboard |
-| `/p/:projectId/employees` | Employees |
-| `/p/:projectId/departments` | Departments |
-| `/p/:projectId/attendance` | Attendance |
-| `/profile`, `/settings` | Account |
+| `/p/:projectId/employees` | Employee management |
+| `/p/:projectId/departments` | Department management |
+| `/p/:projectId/attendance` | Attendance tracking |
+| `/profile`, `/settings` | Account & preferences |
 
 ---
 
-## Prerequisites
+## Data model (backend)
 
-- **Node.js** 20+ (Node 24 tested)
-- **npm** 10+
-- A **Supabase** project (Auth + Postgres)
-
----
-
-## Getting started
-
-### 1. Install
-
-```bash
-git clone <your-repo-url>
-cd employee-management-dashboard
-npm install
+```
+auth.users
+    └── profiles (1:1)
+    └── projects (1:N, owned by user)
+            ├── departments
+            ├── employees  → department
+            ├── attendance → employee + date (unique)
+            └── activity
 ```
 
-### 2. Configure Supabase
+| Table | Responsibility |
+|-------|----------------|
+| `profiles` | Display name, avatar, settings JSON, role |
+| `projects` | Workspaces (color, icon, description) |
+| `departments` | Org units per project |
+| `employees` | Staff records (`active` / `inactive` / `on-leave`) |
+| `attendance` | Daily presence (`present` / `late` / `absent`) |
+| `activity` | Project activity feed |
 
-Edit the environment files:
+On **register**, a database trigger creates a profile and a default workspace (`My Workspace`).
 
-- `src/app/environments/environment.development.ts` (local `ng serve`)
-- `src/app/environments/environment.ts` (production builds)
+---
+
+## Engineering highlights (what strong candidates demonstrate)
+
+- **Feature-first structure** — each domain owns routes, services, state, and UI  
+- **Signal-based state** — `AuthState`, `ProjectState`, and feature states without NgRx ceremony  
+- **Cross-cutting HTTP** — token attachment + centralized error → toast UX  
+- **Security by default** — RLS on all tables; **never** a service-role key in the browser  
+- **Custom UI kit** — avatar, badge, data-table, filters, pagination, dialogs, skeleton, empty states  
+- **Accessibility** — focus-visible controls, ARIA on dialogs/nav, WCAG-minded contrast via theme tokens  
+- **Performance** — lazy-loaded feature routes for smaller initial bundles  
+- **Spec-driven delivery** — phased specs under `specs/` (001–012) + architecture plan  
+
+---
+
+## Configuration
+
+### Prerequisites
+
+- Node.js **20+** (Node 24 tested)
+- npm **10+**
+- A [Supabase](https://supabase.com) project (optional if you only use the shared demo account)
+
+### Environment
+
+Edit:
+
+- `src/app/environments/environment.development.ts` — local `ng serve`
+- `src/app/environments/environment.ts` — production builds
 
 ```ts
 export const environment = {
@@ -122,48 +206,17 @@ export const environment = {
 
 > **Never** put the Supabase **service_role** key in the Angular app. Only the publishable/anon key belongs in the browser.
 
-### 3. Apply the database schema
+### Database
 
-In the Supabase SQL Editor (or CLI), run the migration:
+Run the migration in the Supabase SQL Editor (or CLI):
 
 ```text
 supabase/migrations/20260716_initial_schema.sql
 ```
 
-This creates:
+Creates tables, triggers, RLS policies, and `delete_my_account()` RPC.
 
-- `profiles`, `projects`, `departments`, `employees`, `attendance`, `activity`
-- Triggers (profile + default workspace on signup, `updated_at`)
-- RLS policies for owner-scoped access
-- `delete_my_account()` RPC
-
-### 4. Auth settings (recommended for local demo)
-
-In Supabase Dashboard → **Authentication** → **Providers** → **Email**:
-
-- Disable **Confirm email** if you want instant login after register (or use the demo account below).
-
-### 5. Run the app
-
-```bash
-npm start
-# same as: ng serve
-```
-
-Open [http://localhost:4200](http://localhost:4200).
-
----
-
-## Demo login
-
-On the login page, use **Continue with demo account**, or sign in manually:
-
-| Field | Value |
-|--------|--------|
-| **Email** | `mohamedhossamv8@gmail.com` |
-| **Password** | `mohamedhossamv8@gmail.com` (same as email) |
-
-The demo account is pre-seeded with sample **projects**, **departments**, **employees**, and **attendance** data in the linked Supabase project.
+For instant local demos, disable **Confirm email** under Supabase → Authentication → Email (or use the demo account).
 
 ---
 
@@ -171,85 +224,57 @@ The demo account is pre-seeded with sample **projects**, **departments**, **empl
 
 | Command | Description |
 |---------|-------------|
-| `npm start` | Dev server (development configuration) |
+| `npm start` | Dev server |
 | `npm run build` | Production build → `dist/` |
-| `npm run watch` | Rebuild on change (development) |
+| `npm run watch` | Rebuild on change |
 | `npm test` | Unit tests (Vitest) |
-
----
-
-## Supabase data model (summary)
-
-```
-auth.users
-    └── profiles (1:1)
-    └── projects (1:N, owned by user)
-            ├── departments (N)
-            ├── employees (N, department_id → department)
-            ├── attendance (N, employee_id + date unique)
-            └── activity (N)
-```
-
-| Table | Purpose |
-|-------|---------|
-| `profiles` | Display name, avatar, settings JSON, role |
-| `projects` | Workspaces (color, icon, description) |
-| `departments` | Per-project org units |
-| `employees` | Staff records (status: active / inactive / on-leave) |
-| `attendance` | Daily presence (present / late / absent) |
-| `activity` | Project activity feed |
-
-On **register**, a trigger creates a profile and a default project (`My Workspace`).
-
----
-
-## Key frontend services
-
-| Service | Role |
-|---------|------|
-| `AuthService` | Supabase auth + profile sync |
-| `ApiService` | Generic REST client for PostgREST |
-| `ProjectService` | Project CRUD + active project |
-| `EmployeeService` / `DepartmentService` / `AttendanceService` | Feature CRUD & filters |
-| `ThemeService` | Light/dark theme (DOM `class` + profile preference) |
-| `NotificationService` | Toast messages |
 
 ---
 
 ## Security notes
 
-- Enable **RLS** on all public tables (included in the migration).
-- Use only the **publishable/anon** key in the client.
-- Authorization is project-owner based (`projects.user_id = auth.uid()`).
-- Passwords are handled only by Supabase Auth — never stored in `profiles`.
+- **RLS** enabled on public tables (included in migration)
+- Client uses **anon/publishable** key only
+- Authorization is **project-owner** based (`projects.user_id = auth.uid()`)
+- Passwords live in **Supabase Auth** — never stored on `profiles`
 
 ---
 
-## Project status / specs
+## Built for hiring conversations
 
-Feature work was planned under `specs/` (phases 001–012) and `plan.md`.  
-Runtime code is the source of truth when docs still mention an older in-memory API.
+This repository is a strong conversation starter for roles involving:
+
+**Angular / TypeScript · Frontend architecture · Full-stack with BaaS · SaaS multi-tenancy patterns · Design systems · Accessibility · Auth & data security · Spec-driven delivery**
+
+If you are a recruiter or hiring manager evaluating this work:
+
+1. Clone and use **Continue with demo account**
+2. Switch workspaces, open employees & attendance, toggle theme
+3. Browse `src/app/core` and one feature folder — notice the boundaries
+4. Skim `supabase/migrations` for RLS and trigger design
 
 ---
 
-## Accessibility & quality
+## Author
 
-- Focus-visible controls, ARIA labels on dialogs and nav
-- Theme tokens for light/dark contrast
-- Lazy-loaded feature routes for smaller initial bundles
-- Unit tests for auth and core state (`npm test`)
+**Mohamed Hossam**  
+Frontend / Angular engineer · building polished, production-minded web apps  
+
+- GitHub: [mohamed-hossam1](https://github.com/mohamed-hossam1)  
+- Repository: [employee-management-dashboard](https://github.com/mohamed-hossam1/employee-management-dashboard)
 
 ---
 
 ## License
 
-Private project (`"private": true` in `package.json`). Add a license file if you open-source it.
+Private project (`"private": true` in `package.json`). Contact the author before redistribution.
 
 ---
 
 ## Resources
 
-- [Angular docs](https://angular.dev)
-- [Supabase docs](https://supabase.com/docs)
+- [Angular documentation](https://angular.dev)
+- [Supabase documentation](https://supabase.com/docs)
 - [Supabase Auth](https://supabase.com/docs/guides/auth)
 - [PostgREST filters](https://postgrest.org/en/stable/references/api/tables_views.html)
+- [Tailwind CSS v4](https://tailwindcss.com)
