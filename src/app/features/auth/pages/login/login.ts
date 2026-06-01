@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService, AuthError } from '../../../../core/services/auth.service';
+import { ProjectService } from '../../../../core/services/project.service';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field';
 import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
@@ -19,6 +20,7 @@ const DEMO_PASSWORD = 'mohamedhossamv8@gmail.com';
 export class LoginPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly projectService = inject(ProjectService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -76,8 +78,11 @@ export class LoginPage implements OnInit {
     this.submitting.set(true);
     try {
       await this.auth.login({ email, password });
+      // Mirror APP_INITIALIZER hydration so SPA login works without a full refresh.
+      await this.hydrateAfterAuth();
       const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
-      await this.router.navigateByUrl(returnUrl ?? '/projects');
+      const target = this.safeInternalUrl(returnUrl) ?? '/projects';
+      await this.router.navigateByUrl(target);
     } catch (error) {
       if (AuthError.is(error) && error.code === 'INVALID_CREDENTIALS') {
         this.formError.set('Invalid email or password.');
@@ -91,6 +96,35 @@ export class LoginPage implements OnInit {
     } finally {
       this.submitting.set(false);
     }
+  }
+
+  /**
+   * Load workspace state the same way a full page reload does.
+   * Theme is intentionally left alone — browser preference (localStorage)
+   * already applied by ThemeService.init(); profile defaults to "light" and
+   * must not wipe a user-selected dark mode on login.
+   */
+  private async hydrateAfterAuth(): Promise<void> {
+    const user = this.auth.getCurrentUser();
+    if (!user) {
+      return;
+    }
+    try {
+      await this.projectService.loadActiveProject(user.id);
+    } catch {
+      // Projects page will retry; do not block navigation.
+    }
+  }
+
+  /** Only allow same-app absolute paths (block open redirects). */
+  private safeInternalUrl(value: unknown): string | null {
+    if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) {
+      return null;
+    }
+    if (value.startsWith('/auth')) {
+      return null;
+    }
+    return value;
   }
 
   protected emailError(): string | null {

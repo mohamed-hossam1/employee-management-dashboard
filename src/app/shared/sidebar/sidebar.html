@@ -30,30 +30,51 @@
     [class.sidebar__project--empty]="!hasProject()"
     [class.sidebar__project--open]="projectSwitchOpen()"
   >
-    @if (hasProject()) {
-      <button
-        type="button"
-        class="sidebar__project-trigger"
-        [attr.aria-haspopup]="'menu'"
-        [attr.aria-expanded]="projectSwitchOpen() ? 'true' : 'false'"
-        [attr.aria-label]="'Switch project, current: ' + (projectSlot()?.name ?? '')"
-        [title]="collapsed() ? (projectSlot()?.name ?? 'Switch project') : null"
-        (click)="toggleProjectSwitch.emit()"
-      >
+    <button
+      type="button"
+      class="sidebar__project-trigger"
+      [class.sidebar__project-trigger--empty]="!hasProject()"
+      [attr.aria-haspopup]="'menu'"
+      [attr.aria-expanded]="projectSwitchOpen() ? 'true' : 'false'"
+      [attr.aria-label]="
+        hasProject()
+          ? 'Switch project, current: ' + (projectSlot()?.name ?? '')
+          : 'Select a workspace'
+      "
+      [title]="
+        collapsed()
+          ? hasProject()
+            ? (projectSlot()?.name ?? 'Switch project')
+            : 'Select a workspace'
+          : null
+      "
+      (click)="toggleProjectSwitch.emit()"
+    >
+      @if (hasProject()) {
         <span
           class="sidebar__project-swatch"
           [style.background-color]="projectSlot()?.color ?? 'var(--color-brand)'"
           aria-hidden="true"
         ></span>
-        @if (!collapsed()) {
-          <span class="sidebar__project-name">{{ projectSlot()?.name }}</span>
-          <span class="sidebar__project-caret" aria-hidden="true">▾</span>
-        }
-      </button>
+      } @else {
+        <span class="sidebar__project-swatch sidebar__project-swatch--empty" aria-hidden="true"></span>
+      }
+      @if (!collapsed()) {
+        <span class="sidebar__project-name" [class.sidebar__project-name--muted]="!hasProject()">
+          {{ hasProject() ? projectSlot()?.name : 'No project selected' }}
+        </span>
+        <span class="sidebar__project-caret" aria-hidden="true">▾</span>
+      }
+    </button>
 
-      @if (projectSwitchOpen()) {
-        <div class="sidebar__switch-panel" role="presentation">
-          <div class="sidebar__switch-heading">Workspaces</div>
+    @if (projectSwitchOpen()) {
+      <div class="sidebar__switch-panel" role="presentation">
+        <div class="sidebar__switch-heading">
+          {{ hasProject() ? 'Workspaces' : 'Select a workspace' }}
+        </div>
+        @if (projects().length === 0) {
+          <p class="sidebar__switch-empty">No workspaces yet. Create one to get started.</p>
+        } @else {
           <ul class="sidebar__switch" role="menu" aria-label="Your projects">
             @for (project of projects(); track project.id) {
               <li role="none">
@@ -78,39 +99,53 @@
               </li>
             }
           </ul>
-          <button
-            type="button"
-            role="menuitem"
-            class="sidebar__switch-manage"
-            (click)="manageProjects.emit()"
-          >
-            Manage projects
-          </button>
-        </div>
-      }
-    } @else {
-      @if (!collapsed()) {
-        <span class="sidebar__project-empty">No project selected</span>
-      }
+        }
+        <button
+          type="button"
+          role="menuitem"
+          class="sidebar__switch-manage"
+          (click)="manageProjects.emit()"
+        >
+          {{ projects().length === 0 ? 'Create a project' : 'Manage projects' }}
+        </button>
+      </div>
     }
   </div>
 
   <ul class="sidebar__nav">
     @for (section of sections(); track section.id) {
       <li>
-        <a
-          class="sidebar__link"
-          [routerLink]="section.route"
-          routerLinkActive="sidebar__link--active"
-          [aria-current]="section.id === activeSectionId() ? 'page' : null"
-          [title]="collapsed() ? section.label : null"
-          (click)="linkSelected.emit()"
-        >
-          <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(section.icon) }}</span>
-          @if (!collapsed()) {
-            <span class="sidebar__label">{{ section.label }}</span>
-          }
-        </a>
+        @if (section.disabled) {
+          <span
+            class="sidebar__link sidebar__link--disabled"
+            aria-disabled="true"
+            [title]="
+              collapsed()
+                ? section.label + ' (select a workspace first)'
+                : 'Select a workspace first'
+            "
+          >
+            <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(section.icon) }}</span>
+            @if (!collapsed()) {
+              <span class="sidebar__label">{{ section.label }}</span>
+            }
+          </span>
+        } @else {
+          <a
+            class="sidebar__link"
+            [routerLink]="section.route"
+            routerLinkActive="sidebar__link--active"
+            [routerLinkActiveOptions]="{ exact: section.id === 'profile' || section.id === 'settings' }"
+            [aria-current]="section.id === activeSectionId() ? 'page' : null"
+            [title]="collapsed() ? section.label : null"
+            (click)="linkSelected.emit()"
+          >
+            <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(section.icon) }}</span>
+            @if (!collapsed()) {
+              <span class="sidebar__label">{{ section.label }}</span>
+            }
+          </a>
+        }
       </li>
     }
   </ul>

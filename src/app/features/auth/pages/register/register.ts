@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService, AuthError } from '../../../../core/services/auth.service';
+import { ProjectService } from '../../../../core/services/project.service';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field';
 import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 
@@ -15,6 +16,7 @@ import { scrollToFirstInvalid } from '../../../../shared/utils/form.utils';
 export class RegisterPage {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly projectService = inject(ProjectService);
   private readonly router = inject(Router);
 
   protected readonly submitting = signal(false);
@@ -49,7 +51,16 @@ export class RegisterPage {
     this.submitting.set(true);
     try {
       await this.auth.register({ name, email, password });
-      await this.router.navigate(['/projects']);
+      // Keep browser theme (do not force profile default "light").
+      const user = this.auth.getCurrentUser();
+      if (user) {
+        try {
+          await this.projectService.loadActiveProject(user.id);
+        } catch {
+          /* projects page will load list */
+        }
+      }
+      await this.router.navigateByUrl('/projects');
     } catch (error) {
       console.error('[register]', error);
 

@@ -84,15 +84,6 @@
   flex-shrink: 0;
 }
 
-.sidebar__project--empty {
-  padding: 0.55rem 0.75rem;
-  border-radius: 0.625rem;
-  background: var(--bg);
-  border: 1px dashed var(--border);
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
 .sidebar__project-trigger {
   display: flex;
   align-items: center;
@@ -112,12 +103,23 @@
     background 0.12s ease;
 }
 
+.sidebar__project-trigger--empty {
+  border-style: dashed;
+  color: var(--muted);
+}
+
 .sidebar__project-trigger:hover {
   border-color: color-mix(in srgb, var(--color-brand) 40%, var(--border));
 }
 
+.sidebar__project-trigger--empty:hover {
+  border-style: solid;
+  color: var(--fg);
+}
+
 .sidebar__project--open .sidebar__project-trigger {
   border-color: color-mix(in srgb, var(--color-brand) 55%, var(--border));
+  border-style: solid;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand) 25%, transparent);
 }
 
@@ -138,6 +140,12 @@
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
 }
 
+.sidebar__project-swatch--empty {
+  background: transparent;
+  border: 1.5px dashed color-mix(in srgb, var(--muted) 70%, transparent);
+  box-shadow: none;
+}
+
 .sidebar__project-name {
   flex: 1;
   min-width: 0;
@@ -146,6 +154,19 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 550;
+}
+
+.sidebar__project-name--muted {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.sidebar__switch-empty {
+  margin: 0;
+  padding: 0.65rem 0.65rem 0.45rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--muted);
 }
 
 .sidebar__project-caret {
@@ -306,6 +327,12 @@
   color: #fff;
 }
 
+.sidebar__link--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .sidebar__icon {
   width: 1.25rem;
   text-align: center;
@@ -361,11 +388,14 @@
     transform: translateX(-100%);
     transition: transform 0.2s ease;
     width: 16rem;
+    /* Closed drawer must not intercept clicks on the main content. */
+    pointer-events: none;
   }
 
   .sidebar.drawer-open {
     transform: translateX(0);
     box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
+    pointer-events: auto;
   }
 
   .sidebar.collapsed {

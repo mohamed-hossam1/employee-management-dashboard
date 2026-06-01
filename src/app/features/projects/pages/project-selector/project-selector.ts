@@ -34,9 +34,18 @@ export class ProjectSelectorPage {
   readonly isEmpty = computed(() => !this.loading() && this.projects().length === 0);
 
   constructor() {
+    void this.loadProjects();
+  }
+
+  private async loadProjects(): Promise<void> {
     const user = this.authState.currentUser();
-    if (user) {
-      void this.projectService.getProjects(user.id);
+    if (!user) {
+      return;
+    }
+    try {
+      await this.projectService.getProjects(user.id);
+    } catch {
+      // Error interceptor surfaces the failure; keep empty state usable.
     }
   }
 
@@ -69,7 +78,7 @@ export class ProjectSelectorPage {
         const created = await this.projectService.create(user.id, input);
         await this.projectService.setActiveProject(created.id, user.id);
         this.closeDialog();
-        this.router.navigate(['/p', created.id, 'dashboard']);
+        await this.router.navigateByUrl(`/p/${created.id}/dashboard`);
         return;
       }
       this.closeDialog();
@@ -81,10 +90,15 @@ export class ProjectSelectorPage {
   protected async onActivate(project: Project): Promise<void> {
     const user = this.authState.currentUser();
     if (!user) {
+      await this.router.navigateByUrl('/auth/login');
       return;
     }
-    await this.projectService.setActiveProject(project.id, user.id);
-    this.router.navigate(['/p', project.id, 'dashboard']);
+    try {
+      await this.projectService.setActiveProject(project.id, user.id);
+      await this.router.navigateByUrl(`/p/${project.id}/dashboard`);
+    } catch {
+      // Toast from error interceptor; stay on selector so the user can retry.
+    }
   }
 
   protected openDelete(project: Project): void {

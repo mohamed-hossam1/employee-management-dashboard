@@ -61,12 +61,18 @@ export class MainLayout {
     const projectId = this.activeProjectId();
     return NAVIGATION_SECTIONS.map((section) => {
       if (!section.route.includes(':projectId')) {
-        return section;
+        return { ...section, disabled: false };
       }
       if (!projectId) {
-        return { ...section, route: '/projects' };
+        // Do not map every workspace link to `/projects` — that marks all of them
+        // active and makes them look broken after first login.
+        return { ...section, route: '', disabled: true };
       }
-      return { ...section, route: section.route.replace(':projectId', projectId) };
+      return {
+        ...section,
+        route: section.route.replace(':projectId', projectId),
+        disabled: false
+      };
     });
   });
 
@@ -74,20 +80,7 @@ export class MainLayout {
     const url = this.currentUrl().split('?')[0] ?? '';
     const sections = this.sections();
 
-    // Prefer the longest concrete match so /p/{id}/employees wins over /p/{id}/dashboard patterns.
-    let best: NavigationSection | null = null;
-    for (const section of sections) {
-      if (url === section.route || url.startsWith(`${section.route}/`)) {
-        if (!best || section.route.length > best.route.length) {
-          best = section;
-        }
-      }
-    }
-
-    if (best) {
-      return best;
-    }
-
+    // Account / workspace picker first so placeholder routes never steal the title.
     if (url.startsWith('/projects')) {
       return { id: 'projects', label: 'Projects', icon: 'briefcase', route: '/projects' };
     }
@@ -97,7 +90,21 @@ export class MainLayout {
     if (url.startsWith('/settings')) {
       return sections.find((s) => s.id === 'settings') ?? null;
     }
-    return null;
+
+    // Prefer the longest concrete match so /p/{id}/employees wins over shorter paths.
+    let best: NavigationSection | null = null;
+    for (const section of sections) {
+      if (section.disabled || !section.route) {
+        continue;
+      }
+      if (url === section.route || url.startsWith(`${section.route}/`)) {
+        if (!best || section.route.length > best.route.length) {
+          best = section;
+        }
+      }
+    }
+
+    return best;
   });
 
   readonly activeSectionId = computed(() => this.activeSection()?.id ?? '');
@@ -117,19 +124,28 @@ export class MainLayout {
   async onSelectProject(id: string): Promise<void> {
     const user = this.authState.currentUser();
     if (!user) {
+      await this.router.navigateByUrl('/auth/login');
       return;
     }
-    await this.projectService.setActiveProject(id, user.id);
-    this.themeState.closeProjectSwitch();
-    this.router.navigate(['/p', id, 'dashboard']);
+    try {
+      await this.projectService.setActiveProject(id, user.id);
+      this.themeState.closeProjectSwitch();
+      await this.router.navigateByUrl(`/p/${id}/dashboard`);
+    } catch {
+      // Error interceptor notifies the user.
+    }
   }
 
   onManageProjects(): void {
     this.themeState.closeProjectSwitch();
-    this.router.navigate(['/projects']);
+    void this.router.navigateByUrl('/projects');
   }
 
-  onToggleProjectSwitch(): void {
+  async onToggleProjectSwitch(): Promise<void> {
+    const willOpen = !this.themeState.projectSwitchOpen();
+    if (willOpen) {
+      await this.ensureProjectsLoaded();
+    }
     this.themeState.toggleProjectSwitch();
   }
 
@@ -138,6 +154,8 @@ export class MainLayout {
 
   constructor() {
     this.themeState.listenForBreakpoint(this.destroyRef);
+    // Ensure the workspace picker has data even if the user never opened /projects.
+    void this.ensureProjectsLoaded();
 
     effect(() => {
       const open = this.drawerOpen();
@@ -153,6 +171,18 @@ export class MainLayout {
         this.lastFocused = null;
       }
     });
+  }
+
+  private async ensureProjectsLoaded(): Promise<void> {
+    const user = this.authState.currentUser();
+    if (!user || this.projectState.projects().length > 0) {
+      return;
+    }
+    try {
+      await this.projectService.getProjects(user.id);
+    } catch {
+      // Error interceptor notifies; picker shows empty state.
+    }
   }
 
   onDrawerKeydown(event: KeyboardEvent): void {
@@ -200,7 +230,8 @@ export class MainLayout {
 
   onLogout(): void {
     this.authService.logout();
-    this.router.navigate(['/auth/login']);
+    this.projectService.reset();
+    void this.router.navigate(['/auth/login']);
   }
 
   onSearchFocus(): void {
@@ -208,10 +239,10 @@ export class MainLayout {
   }
 
   onOpenProfile(): void {
-    this.router.navigate(['/profile']);
+    void this.router.navigateByUrl('/profile');
   }
 
   onOpenSettings(): void {
-    this.router.navigate(['/settings']);
+    void this.router.navigateByUrl('/settings');
   }
 }
