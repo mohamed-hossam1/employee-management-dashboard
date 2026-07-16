@@ -1,0 +1,11 @@
+# Angular application builder outputs static assets here.
+# Required by @netlify/angular-runtime and for SPA hosting.
+[build]
+  command = "npm run build"
+  publish = "dist/employee-management-dashboard/browser"
+
+# Client-side routes (Angular Router) — serve index.html for deep links.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
